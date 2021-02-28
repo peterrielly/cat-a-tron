@@ -258,7 +258,6 @@ function checkMonBull()
 			local _b1 = {m.x+m.hitBox[1], m.y+m.hitBox[2],m.hitBox[3],m.hitBox[4] }
 			local _b2 = {b.x+b.hitBox[1], b.y+b.hitBox[2],b.hitBox[3],b.hitBox[4] }
 			if checkCol(_b1,_b2) then
-				--debug="collide"..i" "..j
 				score=score+m.score
 				for k=0,5 do
 					createP(m.x,m.y,20,math.random(360))
