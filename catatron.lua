@@ -97,7 +97,8 @@ function createMan()
 			w=1,
 			h=1,
 			score=20,
-			type="radman"
+			type="radman",
+			update=updateMan
 	   }
 	   table.insert(monList,b)
 end
@@ -212,18 +213,15 @@ function createChomper()
 			hitBox={0,0,7,7},
 			w=1,
 			h=1,
-			score=10
+			score=10,
+			update=updateChomper
 	   }
 	   table.insert(monList,b)
 end
 
 function updateMonsters()
 	for i,b in ipairs(monList) do
-		if b.type =="chomper" then
-			updateChomper(b)
-		elseif b.type=="radman" then
-			updateMan(b)
-		end
+		b:update()
 	end
 end
 
@@ -466,6 +464,7 @@ function go_tic()
 	cls(0)
 	print("Game Over",90,60,textcol)
 	lives = start_lives
+	level=start_level
 	for i,m in ipairs(monList) do
 		table.remove(monList,i)
 	end
