@@ -2,13 +2,16 @@
 -- author: Pete Rielly
 -- desc:   Cat shooter
 -- script: lua
-
+-- 2d1b2e218a913cc2fa9af6fd4a247c574b67937ac58ae25d8e2b45f04156f272ced3c0a8c5754af2a759f7db53f9f4ea
+-- https://lospec.com/palette-list/castpixel-16
 sound = true
 score = 0
-start_lives=1
+start_lives=2
 lives = start_lives
 start_level = 1
 level = start_level
+textcol = 3
+show_hit_box = false
 
 t=0
 x=96
@@ -44,6 +47,8 @@ bulletList={}
 manList={}
 
 monList={}
+
+exList={} -- explosion list
 
 function drawSpr(o)
 	-- update animation timer
@@ -241,12 +246,14 @@ end
 
 function checkCol(b1,b2)
 -- inputs are tables {x1,y1,w,h}
-	rectb(b1[1], b1[2], b1[3], b1[4],3 )
-	rectb(b2[1], b2[2], b2[3], b2[4],3 )
+	if show_hit_box then
+		rectb(b1[1], b1[2], b1[3], b1[4],3 )
+		rectb(b2[1], b2[2], b2[3], b2[4],3 )
+	end
 	if b1[1] <= b2[1]+b2[3] and b1[1]+b1[3] >= b2[1] then
 		if b1[2] <= b2[2]+b2[4] and b1[2] + b1[4] >= b2[2] then
-			circ(b1[1],b1[2],20,0)
-			circ(b2[1],b2[2],20,0)
+			circ(b1[1],b1[2],30,0)
+			circ(b2[1],b2[2],30,0)
 			return true
 		end
 	end
@@ -297,7 +304,7 @@ function createP(_x,_y,_l,_a)
 				x=_x,
 				y=_y,
 				life=_l,
-				c=0,
+				c=15,
 				vx=math.cos(_a),
 				vy=math.sin(_a)
 				}
@@ -374,12 +381,12 @@ end
 
 
 function play_tic()
-	cls(4)
+	cls(13)
 	rect(0,0,240,9,0)
 	rectb(0,9,240,127,11)
-	print("Score "..score,10,1,5)
-	print("Lives "..lives,180,1,5)
-	print("Cat-a-tron",90,1,5)
+	print("Score "..score,10,1,textcol)
+	print("Lives "..lives,180,1,textcol)
+	print("Cat-a-tron",90,1,textcol)
 
 
 	checkMonBull()
@@ -408,12 +415,12 @@ function play_tic()
 end
 
 function hit_tic()
-	cls(4)
+	cls(13)
 	rect(0,0,240,9,0)
 	rectb(0,9,240,127,11)
-	print("Score "..score,10,1,5)
-	print("Lives "..lives,180,1,5)
-	print("Cat-a-tron",90,1,5)
+	print("Score "..score,10,1,textcol)
+	print("Lives "..lives,180,1,textcol)
+	print("Cat-a-tron",90,1,textcol)
 	
 	-- check cat isn't recovering
 	if coolT > 0 then
@@ -444,8 +451,8 @@ function hit_tic()
 end
 function title_tic()
 	cls(0)
-	print("Cat-a-tron",90,60,5)
-	print("Fire to begin",84,70,5)
+	print("Cat-a-tron",90,60,textcol)
+	print("Fire to begin",84,70,textcol)
 
 	if btnp(4) or btnp(5) then
 		init_level(1)
@@ -455,7 +462,7 @@ end
 
 function go_tic()
 	cls(0)
-	print("Game Over",90,60,5)
+	print("Game Over",90,60,textcol)
 	lives = start_lives
 	for i,m in ipairs(monList) do
 		table.remove(monList,i)
@@ -476,16 +483,16 @@ function level_complete_tic()
 	cls(0)
 	rect(0,0,240,9,0)
 	rectb(0,9,240,127,11)
-	print("Score "..score,10,1,5)
-	print("Lives "..lives,180,1,5)
-	print("Cat-a-tron",90,1,5)
+	print("Score "..score,10,1,textcol)
+	print("Lives "..lives,180,1,textcol)
+	print("Cat-a-tron",90,1,textcol)
 	
 	updateShake()
 
 	drawParticles()
 	updateParticles()
 	
-	print("Level "..level+1,90,60,5)
+	print("Wave "..level+1,90,60,textcol)
 
 	if btnp(4) or btnp(5) then
 		cat.x=100
@@ -497,6 +504,32 @@ function level_complete_tic()
 	end
 
 end
+
+function createExplosion(_x,_y,_s,_c)
+	local e={
+				x=_x,
+				y=_y,
+				life=0,
+				c=_c,
+				size=_s
+				}
+	table.insert(exList,p)
+end
+
+function updateExplosions()
+	for i,ex in pairs(exList) do
+		ex.life = ex.life+1
+		if ex.life > 60 then
+			table.remove(exList,i)
+		end
+	end
+end
+
+function drawExplosions()
+	for i=1,#exList do
+	end
+end
+
 function TIC()
 
 	if state == "title" then
@@ -525,15 +558,15 @@ end
 -- </TILES>
 
 -- <SPRITES>
--- 000:00000000ccccc000cbcbcccccbbbccbccbbbcbcccbbbbbc00cbccbc00cccccc0
--- 001:ccccc000cbcbc000cbbbcccccbbbccbccbbbbbcc0cbbbbc00cbccbc00cccccc0
--- 002:000000000002200000233200023cc320023cc320002332000002200000000000
--- 003:00cccc00ccc22c00c2c22cc0cc2222cc0cc22c2c00c22ccc00c2c2c000ccccc0
--- 004:00cccc0000c22c00ccc22cccc222222cccc22ccc0cc22cc00c2cc2c00cccccc0
--- 005:00cccc0000c22ccc0cc22c2ccc2222ccc2c22cc0ccc22c000c2c2c000ccccc00
--- 006:0cccccc0c726626cc766666cc722226cc2cccc2cc722226cc776666c0cccccc0
--- 007:0cccccc0c726626cc762266cc72cc26cc2cccc2cc72cc26cc772266c0cccccc0
--- 008:0cccccc0c726626cc766666cc766666cc222222cc776666cc776666c0cccccc0
+-- 000:00000000aaaaa000a3a3aaaaa333aa3aa333a3aaa33333a00a3aa3a00aaaaaa0
+-- 001:aaaaa000a3a3a000a333aaaaa333aa3aa33333aa0a3333a00a3aa3a00aaaaaa0
+-- 002:000000000002200000233200023ff320023ff320002332000002200000000000
+-- 003:0066660066622600626226606622226606622626006226660062626000666660
+-- 004:0066660000622600666226666222222666622666066226600626626006666660
+-- 005:0066660000622666066226266622226662622660666226000626260006666600
+-- 006:0666666066266266666666666622226662999926662222666666666606666660
+-- 007:0666666066266266666226666629926662999926662992666662266606666660
+-- 008:0666666066266266666666666666666662222226666666666666666606666660
 -- 009:0000000000000000000220000023320000233200000220000000000000000000
 -- 016:00000000000000000000888900088999008899990089999a0089999900899999
 -- 017:00000000000000000088800099999a00999999a099a999a0999999a099999990
@@ -557,6 +590,6 @@ end
 -- </SFX>
 
 -- <PALETTE>
--- 000:1a1c2c5d275db13e53ef7d57ffcd75a7f07038b76425717929366f3b5dc941a6f673eff7f4f4f494b0c2566c86333c57
+-- 000:2d1b2e218a913cc2fa9af6fd4a247c574b67937ac58ae25d8e2b45f04156f272ced3c0a8c5754af2a759f7db53f9f4ea
 -- </PALETTE>
 
