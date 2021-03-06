@@ -95,23 +95,23 @@ function createMan()
 			at=0,
 			hitBox={0,0,8,8},
 			w=1,
-			h=1
+			h=1,
+			score=20,
+			type="radman"
 	   }
-	   table.insert(manList,b)
+	   table.insert(monList,b)
 end
 
-function updateMen()
-	for i,b in ipairs(manList) do
-		if(t%120 == 0) then
-			b.vx=math.random(-1,1)/2
-			b.vy=math.random(-1,1)/2
-		end
-		b.x=b.x+b.vx
-		b.y=b.y+b.vy
-		if not onScreen(b.x,b.y) then
-			b.vx=b.vx*-1
-			b.vy=b.vy*-1
-		end
+function updateMan(b)
+	if(t%120 == 0) then
+		b.vx=math.random(-1,1)/2
+		b.vy=math.random(-1,1)/2
+	end
+	b.x=b.x+b.vx
+	b.y=b.y+b.vy
+	if not onScreen(b.x,b.y) then
+		b.vx=b.vx*-1
+		b.vy=b.vy*-1
 	end
 end
 
@@ -221,6 +221,8 @@ function updateMonsters()
 	for i,b in ipairs(monList) do
 		if b.type =="chomper" then
 			updateChomper(b)
+		elseif b.type=="radman" then
+			updateMan(b)
 		end
 	end
 end
@@ -400,8 +402,8 @@ function play_tic()
 
 	drawBullets()
 
-	updateMen()
-	drawMen()
+--	updateMen()
+--	drawMen()
 
 	drawMonsters()
 
