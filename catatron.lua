@@ -103,22 +103,25 @@ function createMan()
 	   table.insert(monList,b)
 end
 
-function updateMan(b)
+function updateMan(obj)
 	if(t%120 == 0) then
-		b.vx=math.random(-1,1)/2
-		b.vy=math.random(-1,1)/2
+		obj.vx=math.random(-1,1)/2
+		obj.vy=math.random(-1,1)/2
 	end
-	b.x=b.x+b.vx
-	b.y=b.y+b.vy
-	if not onScreen(b.x,b.y) then
-		b.vx=b.vx*-1
-		b.vy=b.vy*-1
+	if onScreen(obj.x+obj.vx,obj.y+obj.vy) then
+		obj.x=obj.x+obj.vx
+		obj.y=obj.y+obj.vy	
+	else
+		obj.vx=obj.vx*-1
+		obj.vy=obj.vy*-1
 	end
 end
 
 function updateCat()
-	cat.x=cat.x+cat.vx
-	cat.y=cat.y+cat.vy
+	if onScreen(cat.x+cat.vx, cat.y+cat.vy) then
+		cat.x=cat.x+cat.vx
+		cat.y=cat.y+cat.vy
+	end
 	cat.ft=cat.ft+1
 	if cat.ft==cat.firespeed then
 		cat.ft=0
@@ -143,7 +146,7 @@ function updateBullets()
 end
 
 function onScreen(_x,_y)
-	if _x < 0 or _x >240 or _y < 9 or _y >136 then
+	if _x < 1 or _x >231 or _y < 9 or _y >128 then
 		return false
 	else
 		return true
@@ -230,9 +233,10 @@ function updateChomper(obj)
 		obj.vx=math.random(-1,1)/2
 		obj.vy=math.random(-1,1)/2
 	end
-	obj.x=obj.x+obj.vx
-	obj.y=obj.y+obj.vy
-	if not onScreen(obj.x,obj.y) then
+	if onScreen(obj.x+obj.vx,obj.y+obj.vy) then
+		obj.x=obj.x+obj.vx
+		obj.y=obj.y+obj.vy	
+	else
 		obj.vx=obj.vx*-1
 		obj.vy=obj.vy*-1
 	end
@@ -362,8 +366,10 @@ end
 
 function resetMonsters()
 	for i,m in ipairs(monList) do
-		m.x=math.random(240)
-		m.y=math.random(110)+9
+		while checkCol({m.x,m.y,8,8},{80,40,80,50}) do
+			m.x=math.random(240)
+			m.y=math.random(110)+9
+		end
 	end
 end
 
@@ -399,9 +405,6 @@ function play_tic()
 	updateShake()
 
 	drawBullets()
-
---	updateMen()
---	drawMen()
 
 	drawMonsters()
 
@@ -478,6 +481,7 @@ function init_level(level)
 	for i=1,10+(level*3) do
 		createChomper()
 	end
+	resetMonsters()
 end
 
 function level_complete_tic()
