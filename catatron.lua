@@ -260,11 +260,10 @@ function checkMonBull()
 			local _b1 = {m.x+m.hitBox[1], m.y+m.hitBox[2],m.hitBox[3],m.hitBox[4] }
 			local _b2 = {b.x+b.hitBox[1], b.y+b.hitBox[2],b.hitBox[3],b.hitBox[4] }
 			if checkCol(_b1,_b2) then
-				table.remove(bulletList,j)
-				if m:isDead() then
+				if m:isDead(b) then
 					score=score+m.score
 					for k=0,5 do
-						createP(m.x,m.y,20,math.random(360))
+						createP(m.x,m.y,20,math.random(360),15)
 					end
 					table.remove(monList,i)
 					shakeT=7
@@ -272,6 +271,7 @@ function checkMonBull()
 						sfx(0)	
 					end
 				end
+				table.remove(bulletList,j)
 				break
 			end
 		end
@@ -295,12 +295,12 @@ function updateShake()
 	end
 end
 
-function createP(_x,_y,_l,_a)
+function createP(_x,_y,_l,_a,_c)
 	local p={
 				x=_x,
 				y=_y,
 				life=_l,
-				c=15,
+				c=_c,
 				vx=math.cos(_a),
 				vy=math.sin(_a)
 				}
@@ -347,7 +347,7 @@ function checkMonCat()
 				sfx(0)	
 			end
 			for k=0,20 do
-				createP(cat.x,cat.y,10,math.random(360))
+				createP(cat.x,cat.y,10,math.random(360),20)
 			end
 			
 			break
@@ -566,11 +566,19 @@ function updateOrgan(obj)
 	end
 end
 
-function multiShotDead(obj)
+function multiShotDead(obj,b)
+	if sound then
+		sfx(0)	
+	end
 	obj.life = obj.life-1
 	if obj.life == 0 then
 		return true
 	else
+		for k=0,5 do
+			createP(obj.x,obj.y,10,math.random(360),10)
+		end
+		obj.x=obj.x+(b.vx*2)
+		obj.y=obj.y+(b.vy*2)
 		return false
 	end
 
