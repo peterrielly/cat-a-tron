@@ -11,7 +11,7 @@ lives = start_lives
 start_level = 1
 level = start_level
 textcol = 3
-show_hit_box = false
+show_hit_box = true
 
 t=0
 x=96
@@ -43,8 +43,6 @@ cat={
 }
 
 bulletList={}
-
-manList={}
 
 monList={}
 
@@ -98,7 +96,8 @@ function createMan()
 			h=1,
 			score=20,
 			type="radman",
-			update=updateMan
+			update=updateMan,
+			isDead=oneShotDead
 	   }
 	   table.insert(monList,b)
 end
@@ -194,13 +193,6 @@ function catInput()
 	end
 end
 
-function drawMen()
-	for i,b in ipairs(manList) do
-		drawSpr(b)
-	end
-end
-
-
 function createChomper()
 	b = {
 			x=math.random(240),
@@ -217,7 +209,8 @@ function createChomper()
 			w=1,
 			h=1,
 			score=10,
-			update=updateChomper
+			update=updateChomper,
+			isDead=oneShotDead
 	   }
 	   table.insert(monList,b)
 end
@@ -256,8 +249,6 @@ function checkCol(b1,b2)
 	end
 	if b1[1] <= b2[1]+b2[3] and b1[1]+b1[3] >= b2[1] then
 		if b1[2] <= b2[2]+b2[4] and b1[2] + b1[4] >= b2[2] then
-			circ(b1[1],b1[2],30,0)
-			circ(b2[1],b2[2],30,0)
 			return true
 		end
 	end
@@ -269,17 +260,18 @@ function checkMonBull()
 			local _b1 = {m.x+m.hitBox[1], m.y+m.hitBox[2],m.hitBox[3],m.hitBox[4] }
 			local _b2 = {b.x+b.hitBox[1], b.y+b.hitBox[2],b.hitBox[3],b.hitBox[4] }
 			if checkCol(_b1,_b2) then
-				score=score+m.score
-				for k=0,5 do
-					createP(m.x,m.y,20,math.random(360))
-				end
-				table.remove(monList,i)
 				table.remove(bulletList,j)
-				shakeT=7
-				if sound then
-					sfx(0)	
+				if m:isDead() then
+					score=score+m.score
+					for k=0,5 do
+						createP(m.x,m.y,20,math.random(360))
+					end
+					table.remove(monList,i)
+					shakeT=7
+					if sound then
+						sfx(0)	
+					end
 				end
-				
 				break
 			end
 		end
@@ -379,11 +371,6 @@ function resetBullets()
 		table.remove(bulletList,i)
 	end
 end
--- init things
-for i=1,5 do
-	createMan()
-end
-
 
 
 function play_tic()
@@ -393,6 +380,7 @@ function play_tic()
 	print("Score "..score,10,1,textcol)
 	print("Lives "..lives,180,1,textcol)
 	print("Cat-a-tron",90,1,textcol)
+	print(#monList, 0,1,textcol)
 
 
 	checkMonBull()
@@ -440,8 +428,6 @@ function hit_tic()
 	end
 	updateShake()
 
-	drawMen()
-
 	drawMonsters()
 
 	drawParticles()
@@ -480,6 +466,10 @@ end
 function init_level(level)
 	for i=1,10+(level*3) do
 		createChomper()
+	end
+	for i=1,5 do
+		createMan()
+		createOrgan()
 	end
 	resetMonsters()
 end
@@ -533,6 +523,57 @@ end
 function drawExplosions()
 	for i=1,#exList do
 	end
+end
+
+function oneShotDead(m)
+	return true
+end
+
+function createOrgan()
+	b = {
+			x=math.random(240),
+			y=math.random(110)+9,
+			right=0,
+			vx=.5,
+			vy=.5,
+			anim={272,274},
+			ai=math.random(1,3),
+			as=math.random(5,12),
+			at=0,
+			type="organ",
+			hitBox={0,0,15,9},
+			w=2,
+			h=2,
+			score=10,
+			update=updateOrgan,
+			isDead=multiShotDead,
+			life=5
+	   }
+	   table.insert(monList,b)
+end
+
+function updateOrgan(obj)
+	if(t%120 == 0) then
+		obj.vx=math.random(-1,1)/2
+		obj.vy=math.random(-1,1)/2
+	end
+	if onScreen(obj.x+obj.vx,obj.y+obj.vy) then
+		obj.x=obj.x+obj.vx
+		obj.y=obj.y+obj.vy	
+	else
+		obj.vx=obj.vx*-1
+		obj.vy=obj.vy*-1
+	end
+end
+
+function multiShotDead(obj)
+	obj.life = obj.life-1
+	if obj.life == 0 then
+		return true
+	else
+		return false
+	end
+
 end
 
 function TIC()
