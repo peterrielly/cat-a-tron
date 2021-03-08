@@ -11,7 +11,7 @@ lives = start_lives
 start_level = 1
 level = start_level
 textcol = 3
-show_hit_box = true
+show_hit_box = false
 
 t=0
 x=96
@@ -19,8 +19,9 @@ y=24
 shakeT=0
 coolT=0
 pl={}
+transition=0
 debug="no msg"
-
+rainbow={9,13,14,7,3,6,4}
 state="title"
 cat={
 	x=100,
@@ -280,7 +281,7 @@ function checkMonBull()
 	-- check if any mosters are still alive
 	if #monList == 0 then
 		coolT=80
-		state = "level complete"
+		state = "level transition"
 	end
 end
 
@@ -407,11 +408,7 @@ end
 
 function hit_tic()
 	cls(13)
-	rect(0,0,240,9,0)
-	rectb(0,9,240,127,11)
-	print("Score "..score,10,1,textcol)
-	print("Lives "..lives,180,1,textcol)
-	print("Cat-a-tron",90,1,textcol)
+	drawHud()
 	
 	-- check cat isn't recovering
 	if coolT > 0 then
@@ -476,11 +473,7 @@ end
 
 function level_complete_tic()
 	cls(0)
-	rect(0,0,240,9,0)
-	rectb(0,9,240,127,11)
-	print("Score "..score,10,1,textcol)
-	print("Lives "..lives,180,1,textcol)
-	print("Cat-a-tron",90,1,textcol)
+ 	drawHud()
 	
 	updateShake()
 
@@ -577,13 +570,33 @@ function multiShotDead(obj,b)
 		for k=0,5 do
 			createP(obj.x,obj.y,10,math.random(360),10)
 		end
-		obj.x=obj.x+(b.vx*2)
-		obj.y=obj.y+(b.vy*2)
+		if onScreen(obj.x+(b.vx*2),obj.y+(b.vy*2)) then
+			obj.x=obj.x+(b.vx*2)
+			obj.y=obj.y+(b.vy*2)
+		end
 		return false
 	end
 
 end
 
+function drawHud()
+	rect(0,0,240,9,0)
+	rectb(0,9,240,127,11)
+	print("Score "..score,10,1,textcol)
+	print("Lives "..lives,180,1,textcol)
+	print("Cat-a-tron",90,1,textcol)
+end
+
+function level_transition_tic()
+	for i=0,6 do
+		rect(0,1+(19*i),transition,19,rainbow[i+1])
+	end
+	transition=transition+10
+	if transition >= 240 then
+		state = "level complete"
+		transition = 0 
+	end
+end
 function TIC()
 
 	if state == "title" then
@@ -596,6 +609,8 @@ function TIC()
 		go_tic()
 	elseif state== "level complete" then
 		level_complete_tic()
+	elseif state == "level transition" then
+		level_transition_tic()
 	end
 
 end
