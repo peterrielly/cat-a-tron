@@ -114,6 +114,8 @@ function updateMan(obj)
 	else
 		obj.vx=obj.vx*-1
 		obj.vy=obj.vy*-1
+		obj.x=obj.x+obj.vx
+		obj.y=obj.y+obj.vy	
 	end
 end
 
@@ -223,16 +225,28 @@ function updateMonsters()
 end
 
 function updateChomper(obj)
+	local a=0
 	if(t%120 == 0) then
-		obj.vx=math.random(-1,1)/2
-		obj.vy=math.random(-1,1)/2
+		if math.random(0,1) ==0 then
+			-- calculate angle to cat
+			a = calc_angle(obj.x,obj.y,cat.x,cat.y)
+		else
+			-- target random point
+			a = calc_angle(obj.x,obj.y,math.random(0,230), math.random(0,128))
+		end
+		obj.vx=math.cos(a)*.75
+		obj.vy=-math.sin(a)*.75
 	end
 	if onScreen(obj.x+obj.vx,obj.y+obj.vy) then
 		obj.x=obj.x+obj.vx
 		obj.y=obj.y+obj.vy	
 	else
-		obj.vx=obj.vx*-1
-		obj.vy=obj.vy*-1
+		a = calc_angle(obj.x,obj.y,150,75)
+		obj.vx=math.cos(a)*.75
+		obj.vy=-math.sin(a)*.75
+		
+		obj.x=obj.x+obj.vx
+		obj.y=obj.y+obj.vy	
 	end
 end
 
@@ -556,6 +570,8 @@ function updateOrgan(obj)
 	else
 		obj.vx=obj.vx*-1
 		obj.vy=obj.vy*-1
+		obj.x=obj.x+obj.vx
+		obj.y=obj.y+obj.vy	
 	end
 end
 
@@ -597,6 +613,15 @@ function level_transition_tic()
 		transition = 0 
 	end
 end
+
+function calc_angle(x1,y1,x2,y2)
+	return math.atan2(y1-y2,x2-x1)
+end
+
+function calc_distance(x1,y1,x2,y2)
+	return math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2))
+end
+
 function TIC()
 
 	if state == "title" then
@@ -637,6 +662,9 @@ end
 -- 007:0666666066266266666226666629926662999926662992666662266606666660
 -- 008:0666666066266266666666666666666662222226666666666666666606666660
 -- 009:0000000000000000000220000023320000233200000220000000000000000000
+-- 010:aaaaaaaaa222222aa266662aa26aa62aa26aa62aa266662aa222222aaaaaaaaa
+-- 011:222222222666666226aaaa6226a22a6226a22a6226aaaa622666666222222222
+-- 012:666666666aaaaaa66a2222a66a2662a66a2662a66a2222a66aaaaaa666666666
 -- 016:00000000000000000000888900088999008899990089999a0089999900899999
 -- 017:00000000000000000088800099999a00999999a099a999a0999999a099999990
 -- 018:00000000000008880000888900088999008899990089999a0089999900899999
