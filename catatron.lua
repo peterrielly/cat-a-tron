@@ -98,25 +98,37 @@ function createMan()
 			score=20,
 			type="radman",
 			update=updateMan,
-			isDead=oneShotDead
+			isDead=oneShotDead,
+			a=1
 	   }
 	   table.insert(monList,b)
 end
 
 function updateMan(obj)
-	if(t%120 == 0) then
-		obj.vx=math.random(-1,1)/2
-		obj.vy=math.random(-1,1)/2
+	local a=0
+	local s=0.25
+	if(t%60 == 0) then
+		-- target random point
+		obj.a = calc_angle(obj.x,obj.y,math.random(0,230), math.random(0,128))
 	end
-	if onScreen(obj.x+obj.vx,obj.y+obj.vy) then
-		obj.x=obj.x+obj.vx
-		obj.y=obj.y+obj.vy	
-	else
-		obj.vx=obj.vx*-1
-		obj.vy=obj.vy*-1
-		obj.x=obj.x+obj.vx
-		obj.y=obj.y+obj.vy	
+
+	if calc_distance(obj.x,obj.y,cat.x,cat.y) <30 then
+		-- calculate angle to cat
+		obj.a = calc_angle(obj.x,obj.y,cat.x,cat.y)
+		s=1.5
 	end
+
+	obj.vx=math.cos(obj.a)*s
+	obj.vy=-math.sin(obj.a)*s
+
+	if not onScreen(obj.x+obj.vx,obj.y+obj.vy) then
+		obj.a = calc_angle(obj.x,obj.y,150,75)
+		obj.vx=math.cos(obj.a)*s
+		obj.vy=-math.sin(obj.a)*s
+	end
+
+	obj.x=obj.x+obj.vx
+	obj.y=obj.y+obj.vy	
 end
 
 function updateCat()
@@ -362,7 +374,7 @@ function checkMonCat()
 				sfx(0)	
 			end
 			for k=0,20 do
-				createP(cat.x,cat.y,10,math.random(360),20)
+				createP(cat.x,cat.y,20,math.random(360),9)
 			end
 			
 			break
@@ -398,22 +410,20 @@ function play_tic()
 	print(#monList, 0,1,textcol)
 
 
-	checkMonBull()
+	
 	catInput()
 	updateCat()
-	checkMonCat()
+	
 	updateBullets()
 	updateMonsters()
+	updateParticles()
+	checkMonCat()
+	checkMonBull()
 	
 	updateShake()
-
 	drawBullets()
-
 	drawMonsters()
-
 	drawParticles()
-	updateParticles()
-
 
 	drawSpr(cat)
 
@@ -445,7 +455,7 @@ function hit_tic()
 	updateParticles()
 
 
-	drawSpr(cat)
+--	drawSpr(cat)
 
 	t=t+1
 end
@@ -488,11 +498,6 @@ end
 function level_complete_tic()
 	cls(0)
  	drawHud()
-	
-	updateShake()
-
-	drawParticles()
-	updateParticles()
 	
 	print("Wave "..level+1,90,60,textcol)
 
@@ -560,19 +565,39 @@ function createOrgan()
 end
 
 function updateOrgan(obj)
+	local a=1
+	local sx=0.6
+	local sy=0.2
+	local r=0
+
+	if obj.a == nil then
+		obj.a = calc_angle(obj.x,obj.y,cat.x, cat.y)
+	end
 	if(t%120 == 0) then
-		obj.vx=math.random(-1,1)/2
-		obj.vy=math.random(-1,1)/2
+		r = math.random(0,2)
+		if r == 0 then
+			-- target random point left
+			obj.a = calc_angle(obj.x,obj.y,math.random(15,100), math.random(10,120))
+		elseif r == 1 then
+			-- target random point right
+			obj.a = calc_angle(obj.x,obj.y,math.random(100,220), math.random(10,120))
+		else
+			obj.a = calc_angle(obj.x,obj.y,cat.x, cat.y)
+		end
 	end
-	if onScreen(obj.x+obj.vx,obj.y+obj.vy) then
-		obj.x=obj.x+obj.vx
-		obj.y=obj.y+obj.vy	
-	else
-		obj.vx=obj.vx*-1
-		obj.vy=obj.vy*-1
-		obj.x=obj.x+obj.vx
-		obj.y=obj.y+obj.vy	
+	a = obj.a
+
+	obj.vx=math.cos(a)*sx
+	obj.vy=-math.sin(a)*sy
+
+	if onScreen(obj.x+obj.vx,obj.y+obj.vy) == false then
+		obj.a = calc_angle(obj.x,obj.y,150,75)
+		obj.vx=math.cos(obj.a)*sx
+		obj.vy=-math.sin(obj.a)*sy
 	end
+
+	obj.x=obj.x+obj.vx
+	obj.y=obj.y+obj.vy	
 end
 
 function multiShotDead(obj,b)
@@ -604,11 +629,16 @@ function drawHud()
 end
 
 function level_transition_tic()
+	updateShake()
+
+	drawParticles()
+	updateParticles()
+
 	for i=0,6 do
 		rect(0,1+(19*i),transition,19,rainbow[i+1])
 	end
 	transition=transition+10
-	if transition >= 240 then
+	if transition >= 250 then
 		state = "level complete"
 		transition = 0 
 	end
@@ -669,6 +699,9 @@ end
 -- 017:00000000000000000088800099999a00999999a099a999a0999999a099999990
 -- 018:00000000000008880000888900088999008899990089999a0089999900899999
 -- 019:00000000000000008000000099888a00999998a099a999a0999999a099999990
+-- 020:0088880008888880888008888880088800888880880888888800008800000000
+-- 021:0088880008888880888008888880088808888800888880888800008800000000
+-- 022:000000000008800000899800089ee980089ee980008998000008800000000000
 -- 032:0099999900099999000099990000900000089000000890000008980000009900
 -- 033:9999990099999000988990000008900000089000008990000099000000000000
 -- 034:0099999900099999000899990008900000089000000898000000990000000000
