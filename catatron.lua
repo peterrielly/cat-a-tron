@@ -4,6 +4,19 @@
 -- script: lua
 -- 2d1b2e218a913cc2fa9af6fd4a247c574b67937ac58ae25d8e2b45f04156f272ced3c0a8c5754af2a759f7db53f9f4ea
 -- https://lospec.com/palette-list/castpixel-16
+
+--[[
+1 = text
+2 = chomper
+3 = radmen
+4 = organ
+]]
+local levels={
+    {"Start slow", 5,0,0},
+    {"They're multiplying", 10,0,0},
+	{"Don't get too close!",6,5,0}
+}
+
 sound = true
 score = 0
 start_lives=2
@@ -48,6 +61,10 @@ bulletList={}
 monList={}
 
 exList={} -- explosion list
+function printc(s,x,y,c)
+	local w=print(s,0,-8)
+	print(s,x-(w/2),y,c or 15)
+end
 
 function drawSpr(o)
 	-- update animation timer
@@ -404,10 +421,7 @@ function play_tic()
 	cls(13)
 	rect(0,0,240,9,0)
 	rectb(0,9,240,127,11)
-	print("Score "..score,10,1,textcol)
-	print("Lives "..lives,180,1,textcol)
-	print("Cat-a-tron",90,1,textcol)
-	print(#monList, 0,1,textcol)
+	drawHud()
 
 
 	
@@ -460,19 +474,22 @@ function hit_tic()
 	t=t+1
 end
 function title_tic()
+	level = start_level
 	cls(0)
-	print("Cat-a-tron",90,60,textcol)
-	print("Fire to begin",84,70,textcol)
+	printc("Cat-a-tron",120,60,textcol)
+	printc("Fire to begin",120,70,textcol)
+	printc(levels[level][1], 120,80,textcol)
+
 
 	if btnp(4) or btnp(5) then
-		init_level(1)
+		init_level(level)
 		state="play"
 	end
 end
 
 function go_tic()
 	cls(0)
-	print("Game Over",90,60,textcol)
+	printc("Game Over",120,60,textcol)
 	lives = start_lives
 	level=start_level
 	for i,m in ipairs(monList) do
@@ -485,13 +502,19 @@ function go_tic()
 end
 
 function init_level(level)
-	for i=1,10+(level*3) do
+
+	for i=1,levels[level][2] do
 		createChomper()
 	end
-	for i=1,5 do
+
+	for i=1,levels[level][3] do
 		createMan()
+	end
+
+	for i=1,levels[level][4] do
 		createOrgan()
 	end
+
 	resetMonsters()
 end
 
@@ -499,7 +522,14 @@ function level_complete_tic()
 	cls(0)
  	drawHud()
 	
-	print("Wave "..level+1,90,60,textcol)
+	if level == #levels then
+		state="game over" -- change to win
+		return
+	end
+
+
+	printc("Wave "..level+1,120,60,textcol)
+	printc(levels[level+1][1],120,70, textcol)
 
 	if btnp(4) or btnp(5) then
 		cat.x=100
@@ -625,7 +655,7 @@ function drawHud()
 	rectb(0,9,240,127,11)
 	print("Score "..score,10,1,textcol)
 	print("Lives "..lives,180,1,textcol)
-	print("Cat-a-tron",90,1,textcol)
+	printc("Cat-a-tron",120,1,textcol)
 end
 
 function level_transition_tic()
