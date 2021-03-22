@@ -10,11 +10,12 @@
 2 = chomper
 3 = radmen
 4 = organ
+5 = box
 ]]
 local levels={
-    {"Start slow", 5,0,0},
-    {"They're multiplying", 10,0,0},
-	{"Don't get too close!",6,5,0}
+    {"Start slow", 5,0,0,2},
+    {"They're multiplying", 10,0,0,2},
+	{"Don't get too close!",6,5,0,3}
 }
 
 sound = true
@@ -299,7 +300,11 @@ function checkCol(b1,b2)
 end
 
 function checkMonBull()
+	local num_alive = 0
 	for i,m in ipairs(monList) do
+		if not m.ignore then
+			num_alive = num_alive+1
+		end
 		for j,b in ipairs(bulletList) do
 			local _b1 = {m.x+m.hitBox[1], m.y+m.hitBox[2],m.hitBox[3],m.hitBox[4] }
 			local _b2 = {b.x+b.hitBox[1], b.y+b.hitBox[2],b.hitBox[3],b.hitBox[4] }
@@ -322,7 +327,7 @@ function checkMonBull()
 	end
 
 	-- check if any mosters are still alive
-	if #monList == 0 then
+	if num_alive == 0 then
 		coolT=80
 		state = "level transition"
 	end
@@ -501,6 +506,20 @@ function go_tic()
 	end
 end
 
+function win_tic()
+	cls(0)
+	printc("You win!",120,60,textcol)
+	lives = start_lives
+	level=start_level
+	for i,m in ipairs(monList) do
+		table.remove(monList,i)
+	end
+
+	if btnp(4) or btnp(5) then
+		state="title"
+	end
+end
+
 function init_level(level)
 
 	for i=1,levels[level][2] do
@@ -515,6 +534,9 @@ function init_level(level)
 		createOrgan()
 	end
 
+	for i=1,levels[level][5] do
+		createBox()
+	end
 	resetMonsters()
 end
 
@@ -523,7 +545,7 @@ function level_complete_tic()
  	drawHud()
 	
 	if level == #levels then
-		state="game over" -- change to win
+		state="win"
 		return
 	end
 
@@ -569,6 +591,34 @@ end
 
 function oneShotDead(m)
 	return true
+end
+
+function createBox()
+	b = {
+			x=math.random(240),
+			y=math.random(110)+9,
+			right=0,
+			vx=.5,
+			vy=.5,
+			anim={266,267,268},
+			ai=math.random(1,3),
+			as=math.random(5,12),
+			at=0,
+			type="box",
+			hitBox={0,0,7,7},
+			w=1,
+			h=1,
+			score=10,
+			update=updateBox,
+			isDead=multiShotStatic,
+			life=10,
+			ignore=true
+	   }
+	   table.insert(monList,b)
+end
+
+function updateBox()
+	return
 end
 
 function createOrgan()
@@ -647,6 +697,21 @@ function multiShotDead(obj,b)
 		end
 		return false
 	end
+end
+
+function multiShotStatic(obj,b)
+	if sound then
+		sfx(0)	
+	end
+	obj.life = obj.life-1
+	if obj.life == 0 then
+		return true
+	else
+		for k=0,5 do
+			createP(obj.x,obj.y,10,math.random(360),10)
+		end
+		return false
+	end
 
 end
 
@@ -696,6 +761,8 @@ function TIC()
 		level_complete_tic()
 	elseif state == "level transition" then
 		level_transition_tic()
+	elseif state == "win" then
+		win_tic()
 	end
 
 end
