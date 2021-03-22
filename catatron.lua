@@ -15,12 +15,14 @@
 local levels={
     {"Start slow", 5,0,0,2},
     {"They're multiplying", 10,0,0,2},
-	{"Don't get too close!",6,5,0,3}
+	{"Don't get too close!",4,7,0,0},
+	{"Mmmm meaty!",0,3,4,2},
+	{"It's like a butchers in here",0,0,9,3}
 }
 
 sound = true
 score = 0
-start_lives=2
+start_lives=3
 lives = start_lives
 start_level = 1
 level = start_level
@@ -37,6 +39,7 @@ transition=0
 debug="no msg"
 rainbow={9,13,14,7,3,6,4}
 state="title"
+itime=60
 cat={
 	x=100,
 	y=50,
@@ -54,7 +57,8 @@ cat={
 	hitBox={1,1,4,4},
 	goodBox={-1,-1,9,9},
 	w=1,
-	h=1
+	h=1,
+	icount = itime
 }
 
 bulletList={}
@@ -158,6 +162,9 @@ function updateCat()
 	if cat.ft==cat.firespeed then
 		cat.ft=0
 		fire()
+	end
+	if cat.icount > 0 then
+		cat.icount = cat.icount-1
 	end
 end
 
@@ -382,12 +389,18 @@ function updateParticles()
 end
 
 function checkMonCat()
+	-- check we are not invincable
+	if cat.icount >0 then
+		return
+	end
+
 	for i,m in ipairs(monList) do
 		
 		local _b1 = {m.x+m.hitBox[1], m.y+m.hitBox[2],m.hitBox[3],m.hitBox[4] }
 		local _b2 = {cat.x+cat.hitBox[1], cat.y+cat.hitBox[2],cat.hitBox[3],cat.hitBox[4] }
 		if checkCol(_b1,_b2) then
 			lives=lives-1
+			cat.icount = itime
 			resetBullets()
 			coolT=70
 			shakeT=60
@@ -427,8 +440,6 @@ function play_tic()
 	rect(0,0,240,9,0)
 	rectb(0,9,240,127,11)
 	drawHud()
-
-
 	
 	catInput()
 	updateCat()
@@ -444,6 +455,17 @@ function play_tic()
 	drawMonsters()
 	drawParticles()
 
+	if cat.icount > 0 then
+		if cat.icount <(itime/4) then
+			if t%4==0 then
+				circ(cat.x+4, cat.y+4,12,10)
+			end
+		else
+			if t%4~=0 then
+				circ(cat.x+4, cat.y+4,12,10)
+			end
+		end
+	end
 	drawSpr(cat)
 
 	t=t+1
@@ -538,6 +560,7 @@ function init_level(level)
 		createBox()
 	end
 	resetMonsters()
+	cat.icount = itime
 end
 
 function level_complete_tic()
@@ -782,9 +805,9 @@ end
 -- 000:00000000aaaaa000a3a3aaaaa333aa3aa333a3aaa33333a00a3aa3a00aaaaaa0
 -- 001:aaaaa000a3a3a000a333aaaaa333aa3aa33333aa0a3333a00a3aa3a00aaaaaa0
 -- 002:000000000002200000233200023ff320023ff320002332000002200000000000
--- 003:0066660066622600626226606622226606622626006226660062626000666660
--- 004:0066660000622600666226666222222666622666066226600626626006666660
--- 005:0066660000622666066226266622226662622660666226000626260006666600
+-- 003:00999900999aa9009a9aa99099aaaa99099aa9a9009aa999009a9a9000999990
+-- 004:00999900009aa900999aa9999aaaaaa9999aa999099aa99009a99a9009999990
+-- 005:00999900009aa999099aa9a999aaaa999a9aa990999aa90009a9a90009999900
 -- 006:0666666066266266666666666622226662999926662222666666666606666660
 -- 007:0666666066266266666226666629926662999926662992666662266606666660
 -- 008:0666666066266266666666666666666662222226666666666666666606666660
