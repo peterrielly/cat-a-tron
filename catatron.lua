@@ -26,7 +26,7 @@ sound = true
 score = 0
 start_lives=3
 lives = start_lives
-start_level = 6
+start_level = 1
 level = start_level
 textcol = 3
 show_hit_box = false
@@ -122,7 +122,7 @@ function createMan()
 			score=20,
 			type="radman",
 			update=updateMan,
-			isDead=oneShotDead,
+			hit=oneShotDead,
 			a=1
 	   }
 	   table.insert(monList,b)
@@ -252,7 +252,7 @@ function createChomper()
 			h=1,
 			score=10,
 			update=updateChomper,
-			isDead=oneShotDead
+			hit=oneShotDead
 	   }
 	   table.insert(monList,b)
 end
@@ -318,12 +318,12 @@ function checkMonBull()
 			local _b1 = {m.x+m.hitBox[1], m.y+m.hitBox[2],m.hitBox[3],m.hitBox[4] }
 			local _b2 = {b.x+b.hitBox[1], b.y+b.hitBox[2],b.hitBox[3],b.hitBox[4] }
 			if checkCol(_b1,_b2) then
-				if m:isDead(b) then
+				if m:hit(b) then
 					score=score+m.score
 					for k=0,5 do
 						createP(m.x,m.y,20,math.random(360),15)
 					end
-					table.remove(monList,i)
+					m.isDead=true
 					shakeT=7
 					if sound then
 						sfx(0)	
@@ -335,6 +335,12 @@ function checkMonBull()
 		end
 	end
 
+	--loop through removing dead things
+	for i,m in ipairs(monList) do
+		if m.isDead then
+			table.remove(monList,i)
+		end
+	end
 	-- check if any mosters are still alive
 	if num_alive == 0 then
 		coolT=80
@@ -639,7 +645,7 @@ function createBox()
 			h=1,
 			score=10,
 			update=updateBox,
-			isDead=multiShotStatic,
+			hit=multiShotStatic,
 			life=10,
 			ignore=true
 	   }
@@ -667,7 +673,7 @@ function createSentinel()
 			h=2,
 			score=10,
 			update=updateSentinel,
-			isDead=multiShotStatic,
+			hit=multiShotStatic,
 			life=10
 	   }
 	   table.insert(monList,b)
@@ -699,7 +705,7 @@ function createShot(_x,_y,_vx,_vy)
 			h=1,
 			score=10,
 			update=updateShot,
-			isDead=oneShotDead,
+			hit=oneShotDead,
 			life=10,
 			ignore=true
 	   }
@@ -711,12 +717,7 @@ function updateShot(obj)
 		obj.x=obj.x+obj.vx
 		obj.y=obj.y+obj.vy	
 	else
-		a = calc_angle(obj.x,obj.y,150,75)
-		obj.vx=math.cos(a)*shotspeed
-		obj.vy=-math.sin(a)*shotspeed
-		
-		obj.x=obj.x+obj.vx
-		obj.y=obj.y+obj.vy	
+		obj.isDead=true
 	end
 end
 
@@ -737,7 +738,7 @@ function createOrgan()
 			h=2,
 			score=10,
 			update=updateOrgan,
-			isDead=multiShotDead,
+			hit=multiShotDead,
 			life=5
 	   }
 	   table.insert(monList,b)
