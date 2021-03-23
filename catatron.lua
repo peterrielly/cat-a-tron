@@ -11,24 +11,26 @@
 3 = radmen
 4 = organ
 5 = box
+6 = sentinel
 ]]
 local levels={
-    {"Start slow", 5,0,0,2},
-    {"They're multiplying", 10,0,0,2},
-	{"Don't get too close!",4,7,0,0},
-	{"Mmmm meaty!",0,3,4,2},
-	{"It's like a butchers in here",0,0,9,3}
+    {"Start slow", 5,0,0,2,0},
+    {"They're multiplying", 10,0,0,2,0},
+	{"Don't get too close!",4,7,0,0,0},
+	{"Mmmm meaty!",0,3,4,2,0},
+	{"It's like a butchers in here",0,0,9,3,0},
+	{"I fell like someone is watching me",0,0,0,0,4}
 }
 
 sound = true
 score = 0
 start_lives=3
 lives = start_lives
-start_level = 1
+start_level = 6
 level = start_level
 textcol = 3
 show_hit_box = false
-
+shotspeed = 0.5 -- enemy shot speed
 t=0
 x=96
 y=24
@@ -559,6 +561,10 @@ function init_level(level)
 	for i=1,levels[level][5] do
 		createBox()
 	end
+
+	for i=1,levels[level][6] do
+		createSentinel()
+	end	
 	resetMonsters()
 	cat.icount = itime
 end
@@ -642,6 +648,76 @@ end
 
 function updateBox()
 	return
+end
+
+function createSentinel()
+	b = {
+			x=math.random(240),
+			y=math.random(110)+9,
+			right=0,
+			vx=.5,
+			vy=.5,
+			anim={304,306},
+			ai=math.random(1,3),
+			as=math.random(5,12),
+			at=0,
+			type="sentinel",
+			hitBox={2,0,11,15},
+			w=2,
+			h=2,
+			score=10,
+			update=updateSentinel,
+			isDead=multiShotStatic,
+			life=10
+	   }
+	   table.insert(monList,b)
+end
+
+function updateSentinel(obj)
+	if t%240==0 then
+		local a = calc_angle(obj.x, obj.y,cat.x, cat.y)
+		local vx=math.cos(a)*shotspeed
+		local vy=-math.sin(a)*shotspeed
+		createShot(obj.x,obj.y,vx,vy)
+	end
+end
+
+function createShot(_x,_y,_vx,_vy)
+	b = {
+			x=_x,
+			y=_y,
+			right=0,
+			vx=_vx,
+			vy=_vy,
+			anim={278},
+			ai=math.random(1,3),
+			as=math.random(5,12),
+			at=0,
+			type="shot",
+			hitBox={1,1,5,5},
+			w=1,
+			h=1,
+			score=10,
+			update=updateShot,
+			isDead=oneShotDead,
+			life=10,
+			ignore=true
+	   }
+	   table.insert(monList,b)
+end
+
+function updateShot(obj)
+	if onScreen(obj.x+obj.vx,obj.y+obj.vy) then
+		obj.x=obj.x+obj.vx
+		obj.y=obj.y+obj.vy	
+	else
+		a = calc_angle(obj.x,obj.y,150,75)
+		obj.vx=math.cos(a)*shotspeed
+		obj.vy=-math.sin(a)*shotspeed
+		
+		obj.x=obj.x+obj.vx
+		obj.y=obj.y+obj.vy	
+	end
 end
 
 function createOrgan()
@@ -826,6 +902,14 @@ end
 -- 033:9999990099999000988990000008900000089000008990000099000000000000
 -- 034:0099999900099999000899990008900000089000000898000000990000000000
 -- 035:9999990099999000988990000008900000089000000890000089900000990000
+-- 048:0000000000000003000000320000032a00000022000000020000000a00000013
+-- 049:0000000022000000a22000003a220000a220000022000000fa00000011100000
+-- 050:00000003000000320000032a0000002200000002000000000000000f00000013
+-- 051:22000000a22000003a220000a22000002200000000000000ff00000011100000
+-- 064:00000131000000af000001310000131100000afa000013110001311100000000
+-- 065:11110000aaa000001111000011111000aaaa0000111110001111110000000000
+-- 066:00000131000000af000001310000131100000aff000013110001311100000000
+-- 067:11110000ffa000001111000011111000fffa0000111110001111110000000000
 -- </SPRITES>
 
 -- <WAVES>
