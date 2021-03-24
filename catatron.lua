@@ -123,7 +123,8 @@ function createMan()
 			type="radman",
 			update=updateMan,
 			hit=oneShotDead,
-			a=1
+			a=1,
+			isHittable=true
 	   }
 	   table.insert(monList,b)
 end
@@ -139,7 +140,7 @@ function updateMan(obj)
 	if calc_distance(obj.x,obj.y,cat.x,cat.y) <30 then
 		-- calculate angle to cat
 		obj.a = calc_angle(obj.x,obj.y,cat.x,cat.y)
-		s=1.5
+		s=1
 	end
 
 	obj.vx=math.cos(obj.a)*s
@@ -252,7 +253,8 @@ function createChomper()
 			h=1,
 			score=10,
 			update=updateChomper,
-			hit=oneShotDead
+			hit=oneShotDead,
+			isHittable=true
 	   }
 	   table.insert(monList,b)
 end
@@ -317,7 +319,7 @@ function checkMonBull()
 		for j,b in ipairs(bulletList) do
 			local _b1 = {m.x+m.hitBox[1], m.y+m.hitBox[2],m.hitBox[3],m.hitBox[4] }
 			local _b2 = {b.x+b.hitBox[1], b.y+b.hitBox[2],b.hitBox[3],b.hitBox[4] }
-			if checkCol(_b1,_b2) then
+			if checkCol(_b1,_b2) and m.isHittable then
 				if m:hit(b) then
 					score=score+m.score
 					for k=0,5 do
@@ -442,6 +444,11 @@ function resetBullets()
 	end
 end
 
+function removeMonsters()
+	for i,b in ipairs(monList) do
+		table.remove(monList,i)
+	end
+end
 
 function play_tic()
 	cls(13)
@@ -578,6 +585,9 @@ end
 function level_complete_tic()
 	cls(0)
  	drawHud()
+
+	resetBullets()
+	removeMonsters()
 	
 	if level == #levels then
 		state="win"
@@ -647,7 +657,8 @@ function createBox()
 			update=updateBox,
 			hit=multiShotStatic,
 			life=10,
-			ignore=true
+			ignore=true,
+			isHittable=true
 	   }
 	   table.insert(monList,b)
 end
@@ -658,14 +669,14 @@ end
 
 function createSentinel()
 	b = {
-			x=math.random(240),
+			x=math.random(200) +10,
 			y=math.random(110)+9,
 			right=0,
-			vx=.5,
-			vy=.5,
+			vx=0,
+			vy=0,
 			anim={304,306},
 			ai=math.random(1,3),
-			as=math.random(5,12),
+			as=12,
 			at=0,
 			type="sentinel",
 			hitBox={2,0,11,15},
@@ -674,7 +685,8 @@ function createSentinel()
 			score=10,
 			update=updateSentinel,
 			hit=multiShotStatic,
-			life=10
+			life=10, 
+			isHittable = true
 	   }
 	   table.insert(monList,b)
 end
@@ -707,7 +719,8 @@ function createShot(_x,_y,_vx,_vy)
 			update=updateShot,
 			hit=oneShotDead,
 			life=10,
-			ignore=true
+			ignore=true,
+			isHittable=false
 	   }
 	   table.insert(monList,b)
 end
@@ -739,7 +752,8 @@ function createOrgan()
 			score=10,
 			update=updateOrgan,
 			hit=multiShotDead,
-			life=5
+			life=5,
+			isHittable=true
 	   }
 	   table.insert(monList,b)
 end
