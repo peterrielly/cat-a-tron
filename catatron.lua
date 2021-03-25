@@ -438,9 +438,10 @@ end
 
 function resetMonsters()
 	for i,m in ipairs(monList) do
-		while checkCol({m.x,m.y,8,8},{80,40,80,50}) do
-			m.x=math.random(200)+10
-			m.y=math.random(110)+9
+		--while checkCol({m.x,m.y,8,8},{80,40,80,50}) do
+		while calc_distance(m.x,m.y,cat.x,cat.y) < 50 do
+			print(calc_distance(m.x,m.y,cat.x,cat.y),10,10,7)
+			m.x=m.x+math.random(-1,1)
 		end
 	end
 end
@@ -694,7 +695,7 @@ end
 function createBoss1()
 	b = {
 			x=math.random(100) +20,
-			y=math.random(90)+30,
+			y=math.random(30)+30,
 			right=0,
 			vx=0,
 			vy=0,
