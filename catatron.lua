@@ -16,11 +16,11 @@
 ]]
 local levels={
     {"Start slow", 5,0,0,2,0,0},
-    {"They're multiplying", 10,0,0,2,0,0},
-	{"Don't get too close!",4,7,0,0,0,0},
+    {"They're multiplying", 8,0,0,4,0,0},
+	{"Don't get too close!",4,4,0,2,0,0},
 	{"Mmmm meaty!",0,3,4,2,0,0},
-	{"It's like a butchers in here",0,0,9,3,0,0},
-	{"I fell like someone is watching me",0,0,0,0,4,0},
+	{"It's like a butchers in here",3,0,6,1,0,0},
+	{"I feel like someone is watching me",3,0,0,3,4,0},
 	{"Miniboss",0,0,0,0,0,1}
 }
 
@@ -28,7 +28,7 @@ sound = true
 score = 0
 start_lives=3
 lives = start_lives
-start_level = 3
+start_level = 1
 level = start_level
 textcol = 3
 show_hit_box = false
@@ -142,7 +142,9 @@ function updateMan(obj)
 
 	local d= calc_distance(obj.x,obj.y,cat.x,cat.y)
 	if d<60 then 
-	if  d<30 then radcount=radcount+1 end
+
+		if  d<30 then radcount=radcount+1 end
+
 		-- calculate angle to cat
 		obj.a = calc_angle(obj.x,obj.y,cat.x,cat.y)
 		s=0.85
@@ -334,7 +336,7 @@ function checkMonBull()
 					m.isDead=true
 					shakeT=7
 					if sound then
-						sfx(0)	
+						sfx(2)	
 					end
 				end
 				table.remove(bulletList,j)
@@ -422,7 +424,7 @@ function checkMonCat()
 			shakeT=60
 			state="hit"
 			if sound then
-				sfx(0)	
+				sfx(2)	
 			end
 			for k=0,20 do
 				createP(cat.x,cat.y,20,math.random(360),9)
@@ -738,11 +740,12 @@ function createSentinel()
 end
 
 function updateSentinel(obj)
-	if t%240==0 then
+	if t%60==0 and math.random(0,3)==0 then
 		local a = calc_angle(obj.x, obj.y,cat.x, cat.y)
 		local vx=math.cos(a)*shotspeed
 		local vy=-math.sin(a)*shotspeed
-		createShot(obj.x,obj.y,vx,vy)
+		if sound then sfx(3) end
+		createShot(obj.x+8,obj.y,vx,vy)
 	end
 end
 
@@ -1016,6 +1019,8 @@ end
 -- <SFX>
 -- 000:02000243026302730253f230f240f260f250f200f200f200f200f200f200f200f200f200f200f200f200f200f200f200f200f200f200f200f200f200305000000000
 -- 001:0100011001500180018001400120f110f190f140f140f150f180f1a0f1b0f1e0f1e0f1a0f140f120f120f170f140f130f100f100f100f100f100f100503000000000
+-- 002:03000400060007000800080009000700020000000000010003000600e400f000f000f000f000f000f000f000f000f000f000f000f000f000f000f000000000000000
+-- 003:01202164218071be41eb017bf140f100f100f100f100f100f100f100f100f100f100f100f100f100f100f100f100f100f100f100f100f100f100f100457000000000
 -- </SFX>
 
 -- <PALETTE>
