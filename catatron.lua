@@ -87,7 +87,15 @@ function drawSpr(o)
 	if o.ai > #o.anim then
 		o.ai=1
 	end
-	spr(o.anim[o.ai],o.x,o.y,0,1,o.right,0,o.w,o.h)
+	if o.flash ~= nil then
+		if o.flash > 0 then
+			o.flash=o.flash-1
+		else
+			spr(o.anim[o.ai],o.x,o.y,0,1,o.right,0,o.w,o.h)
+		end
+	else
+		spr(o.anim[o.ai],o.x,o.y,0,1,o.right,0,o.w,o.h)
+	end
 end
 
 function fire()
@@ -144,7 +152,6 @@ function updateMan(obj)
 
 	local d= calc_distance(obj.x,obj.y,cat.x,cat.y)
 	if d<60 then 
-
 		if  d<30 then radcount=radcount+1 end
 
 		-- calculate angle to cat
@@ -935,6 +942,7 @@ function multiShotDead(obj,b)
 			obj.x=obj.x+(b.vx*2)
 			obj.y=obj.y+(b.vy*2)
 		end
+		obj.flash = 4
 		return false
 	end
 end
@@ -950,6 +958,7 @@ function multiShotStatic(obj,b)
 		for k=0,5 do
 			createP(b.x,b.y,10,math.random(360),10)
 		end
+		obj.flash = 4
 		return false
 	end
 
