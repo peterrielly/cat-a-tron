@@ -13,22 +13,25 @@
 5 = box
 6 = sentinel
 7 = boss1
+8 = grunt
+9 = tank
 ]]
 local levels={
-    {"Start slow", 3,0,0,2,0,0,6},
-    {"They're multiplying", 4,0,0,4,0,0,10},
-	{"Don't get too close!",4,4,0,2,0,0,5},
-	{"Mmmm meaty!",0,3,4,2,0,0,6},
-	{"It's like a butchers in here",3,0,6,1,0,0,6},
-	{"I feel like someone is watching me",3,0,0,3,4,0,4},
-	{"Miniboss",0,0,0,0,0,1,0}
+    {"Start slow", 3,0,0,2,0,0,6,0},
+    {"They're multiplying", 4,0,0,4,0,0,10,0},
+	{"Don't get too close!",4,4,0,2,0,0,5,0},
+	{"Mmmm meaty!",0,3,4,2,0,0,6,0},
+	{"It's like a butchers in here",3,0,6,1,0,0,6,0},
+	{"I feel like someone is watching me",3,0,0,3,4,0,4,0},
+	{"Tank you very much",0,0,0,0,0,0,9,5},
+	{"Miniboss",0,0,0,0,0,1,0,0}
 }
 
 sound = true
 score = 0
 start_lives=3
 lives = start_lives
-start_level = 1
+start_level = 7
 level = start_level
 textcol = 3
 show_hit_box = false
@@ -663,6 +666,10 @@ function init_level(level)
 		createGrunt()
 	end
 
+	for i=1,levels[level][9] do
+		createTank()
+	end
+
 	resetMonsters()
 	cat.icount = itime
 end
@@ -866,6 +873,60 @@ function updateShot(obj)
 	end
 end
 
+function createTank()
+	b = {
+			x=math.random(240),
+			y=math.random(110)+9,
+			right=0,
+			vx=.5,
+			vy=.5,
+			anim={336,338},
+			ai=math.random(1,2),
+			as=math.random(28,34),
+			at=0,
+			type="tank",
+			hitBox={0,0,15,11},
+			w=2,
+			h=2,
+			score=10,
+			update=updateTank,
+			hit=multiShotDead,
+			life=5,
+			isHittable=true,
+			draw=drawSpr
+	   }
+	   table.insert(monList,b)
+end
+
+function updateTank(obj)
+	-- which way is the cat
+	if cat.x < obj.x then
+		obj.right = 1
+	else
+		obj.right = 0
+	end
+	
+	local a=0
+	if math.random(0,1) ==0 then
+		-- calculate angle to cat
+		a = calc_angle(obj.x,obj.y,cat.x,cat.y)
+	else
+		-- target random point
+		a = calc_angle(obj.x,obj.y,math.random(0,230), math.random(0,128))
+	end
+	obj.vx=math.cos(a)*.3
+	obj.vy=-math.sin(a)*.3
+
+	if not onScreen(obj.x+obj.vx,obj.y+obj.vy) then
+		a = calc_angle(obj.x,obj.y,150,75)
+		obj.vx=math.cos(a)*.3
+		obj.vy=-math.sin(a)*.3
+	end
+
+	obj.x=obj.x+obj.vx
+	obj.y=obj.y+obj.vy	
+end
+
 function createOrgan()
 	b = {
 			x=math.random(240),
@@ -1060,6 +1121,7 @@ end
 -- 035:9999990099999000988990000008900000089000000890000089900000990000
 -- 036:0000000f00000ff40000f444000f446600f446660f4466660f446664f4444444
 -- 037:f00000004ff00000444f00006444f00064444f00444444f0444444f04444444f
+-- 038:44444444444444444f4444f444f44f44444ff44444f44f444f4444f444444444
 -- 039:0000000000000000000000ff00000f440000f444000f4444000f4444000f4444
 -- 040:0f444466f4444666444666644666666446666644666666446666644466666444
 -- 041:4444444444444444444466444446ff64446ffff646ffffff46ffffff46ffffff
@@ -1094,6 +1156,14 @@ end
 -- 076:444444444444444444444444444444444444444444444444ffffffff00000000
 -- 077:44444444444444444444444f444444f04444ff004fff0000f000000000000000
 -- 078:44f000004f000000f00000000000000000000000000000000000000000000000
+-- 080:0000002300000232000022220000022200000022000066660006666600555666
+-- 081:2200000022a000002a3a000022a0000022000000666400006644450066444500
+-- 082:0000002300000232000022220000022200000022000066660005556600055566
+-- 083:220000002a200000a3a200002a20000022000000666400006644400066444500
+-- 096:0055566600555666005550550005000500000000000000000000000000000000
+-- 097:6644450066645500500050000000000000000000000000000000000000000000
+-- 098:0005556600055566000050050000000000000000000000000000000000000000
+-- 099:6644450066645500550555005000500000000000000000000000000000000000
 -- </SPRITES>
 
 -- <WAVES>
