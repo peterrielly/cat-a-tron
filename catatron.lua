@@ -128,7 +128,8 @@ function createMan()
 			update=updateMan,
 			hit=oneShotDead,
 			a=1,
-			isHittable=true
+			isHittable=true,
+			draw=drawSpr
 	   }
 	   table.insert(monList,b)
 end
@@ -263,7 +264,8 @@ function createChomper()
 			score=10,
 			update=updateChomper,
 			hit=oneShotDead,
-			isHittable=true
+			isHittable=true,
+			draw=drawSpr
 	   }
 	   table.insert(monList,b)
 end
@@ -318,7 +320,8 @@ function createGrunt()
 			score=5,
 			update=updateGrunt,
 			hit=oneShotDead,
-			isHittable=true
+			isHittable=true,
+			draw=drawSpr
 	   }
 	   table.insert(monList,b)
 end
@@ -346,8 +349,8 @@ function updateGrunt(obj)
 end
 
 function drawMonsters()
-	for i,b in ipairs(monList) do
-		drawSpr(b)
+	for i,m in ipairs(monList) do
+		m:draw()
 	end
 end
 
@@ -733,7 +736,8 @@ function createBox()
 			hit=multiShotStatic,
 			life=10,
 			ignore=true,
-			isHittable=true
+			isHittable=true,
+			draw=drawSpr
 	   }
 	   table.insert(monList,b)
 end
@@ -761,7 +765,8 @@ function createBoss1()
 			update=updateBoss1,
 			hit=multiShotStatic,
 			life=50, 
-			isHittable = true
+			isHittable = true,
+			draw=drawSpr
 	   }
 	   table.insert(monList,b)
 end
@@ -803,7 +808,8 @@ function createSentinel()
 			update=updateSentinel,
 			hit=multiShotStatic,
 			life=10, 
-			isHittable = true
+			isHittable = true,
+			draw=drawSpr
 	   }
 	   table.insert(monList,b)
 end
@@ -838,7 +844,8 @@ function createShot(_x,_y,_vx,_vy)
 			hit=oneShotDead,
 			life=10,
 			ignore=true,
-			isHittable=false
+			isHittable=false,
+			draw=drawSpr
 	   }
 	   table.insert(monList,b)
 end
@@ -871,7 +878,8 @@ function createOrgan()
 			update=updateOrgan,
 			hit=multiShotDead,
 			life=5,
-			isHittable=true
+			isHittable=true,
+			draw=drawSpr
 	   }
 	   table.insert(monList,b)
 end
