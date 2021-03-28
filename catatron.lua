@@ -15,13 +15,13 @@
 7 = boss1
 ]]
 local levels={
-    {"Start slow", 5,0,0,2,0,0},
-    {"They're multiplying", 8,0,0,4,0,0},
-	{"Don't get too close!",4,4,0,2,0,0},
-	{"Mmmm meaty!",0,3,4,2,0,0},
-	{"It's like a butchers in here",3,0,6,1,0,0},
-	{"I feel like someone is watching me",3,0,0,3,4,0},
-	{"Miniboss",0,0,0,0,0,1}
+    {"Start slow", 3,0,0,2,0,0,6},
+    {"They're multiplying", 4,0,0,4,0,0,10},
+	{"Don't get too close!",4,4,0,2,0,0,5},
+	{"Mmmm meaty!",0,3,4,2,0,0,6},
+	{"It's like a butchers in here",3,0,6,1,0,0,6},
+	{"I feel like someone is watching me",3,0,0,3,4,0,4},
+	{"Miniboss",0,0,0,0,0,1,0}
 }
 
 sound = true
@@ -45,6 +45,7 @@ rainbow={9,13,14,7,3,6,4}
 state="title"
 itime=60
 radcount=0
+groundcolour=0
 cat={
 	x=100,
 	y=50,
@@ -147,7 +148,7 @@ function updateMan(obj)
 
 		-- calculate angle to cat
 		obj.a = calc_angle(obj.x,obj.y,cat.x,cat.y)
-		s=0.85
+		s=0.75
 		radcount=radcount+1
 	end
 
@@ -246,7 +247,7 @@ end
 
 function createChomper()
 	b = {
-			x=math.random(240),
+			x=math.random(200)+15,
 			y=math.random(110)+9,
 			right=0,
 			vx=.5,
@@ -297,6 +298,51 @@ function updateChomper(obj)
 		obj.x=obj.x+obj.vx
 		obj.y=obj.y+obj.vy	
 	end
+end
+
+function createGrunt()
+	b = {
+			x=math.random(200+15),
+			y=math.random(110)+9,
+			right=0,
+			vx=.5,
+			vy=.5,
+			anim={276,277},
+			ai=math.random(1,2),
+			as=math.random(18,20),
+			at=0,
+			type="grunt",
+			hitBox={0,0,7,7},
+			w=1,
+			h=1,
+			score=5,
+			update=updateGrunt,
+			hit=oneShotDead,
+			isHittable=true
+	   }
+	   table.insert(monList,b)
+end
+
+function updateGrunt(obj)
+	local a=0
+	if math.random(0,1) ==0 then
+		-- calculate angle to cat
+		a = calc_angle(obj.x,obj.y,cat.x,cat.y)
+	else
+		-- target random point
+		a = calc_angle(obj.x,obj.y,math.random(0,230), math.random(0,128))
+	end
+	obj.vx=math.cos(a)*.3
+	obj.vy=-math.sin(a)*.3
+
+	if not onScreen(obj.x+obj.vx,obj.y+obj.vy) then
+		a = calc_angle(obj.x,obj.y,150,75)
+		obj.vx=math.cos(a)*.3
+		obj.vy=-math.sin(a)*.3
+	end
+
+	obj.x=obj.x+obj.vx
+	obj.y=obj.y+obj.vy	
 end
 
 function drawMonsters()
@@ -461,7 +507,7 @@ end
 
 function play_tic()
 	radcount=0
-	cls(13)
+	cls(groundcolour)
 	rect(0,0,240,9,0)
 	rectb(0,9,240,127,11)
 	drawHud()
@@ -507,7 +553,7 @@ function play_tic()
 end
 
 function hit_tic()
-	cls(13)
+	cls(groundcolour)
 	drawHud()
 	
 	-- check cat isn't recovering
@@ -603,6 +649,10 @@ function init_level(level)
 		createBoss1()
 	end
 
+	for i=1,levels[level][8] do
+		createGrunt()
+	end
+
 	resetMonsters()
 	cat.icount = itime
 end
@@ -694,8 +744,8 @@ end
 
 function createBoss1()
 	b = {
-			x=math.random(100) +20,
-			y=math.random(30)+30,
+			x=20,
+			y=60,
 			right=0,
 			vx=0,
 			vy=0,
@@ -708,12 +758,30 @@ function createBoss1()
 			w=8,
 			h=4,
 			score=10,
-			update=updateSentinel,
+			update=updateBoss1,
 			hit=multiShotStatic,
-			life=10, 
+			life=50, 
 			isHittable = true
 	   }
 	   table.insert(monList,b)
+end
+
+function updateBoss1(obj)
+	obj.vx = obj.vx 
+	--obj.x = obj.x +math.sin(math.rad(t))*1.2
+	--obj.y = obj.y +math.cos(math.rad(t/2))/2.6
+
+	obj.x = 100+ math.sin(math.rad(t))*40
+	obj.y = 60 + math.cos(math.rad(t/2))*30
+
+	if t%60==0 and math.random(0,3)==0 then
+		local a = calc_angle(obj.x, obj.y,cat.x, cat.y)
+		local vx=math.cos(a)*shotspeed
+		local vy=-math.sin(a)*shotspeed
+		if sound then sfx(3) end
+		createP(obj.x+32,obj.y+16,10,0,0)
+		createShot(obj.x+32,obj.y+16,vx,vy)
+	end
 end
 
 function createSentinel()
@@ -960,8 +1028,8 @@ end
 -- 017:00000000000000000088800099999a00999999a099a999a0999999a099999990
 -- 018:00000000000008880000888900088999008899990089999a0089999900899999
 -- 019:00000000000000008000000099888a00999998a099a999a0999999a099999990
--- 020:0088880008888880888008888880088800888880880888888800008800000000
--- 021:0088880008888880888008888880088808888800888880888800008800000000
+-- 020:0011110001111210111aa121111aa11100111110110111111100001100000011
+-- 021:0011110001111210111aa121111aa11101111100111110111100001111000000
 -- 022:000000000008800000899800089ee980089ee980008998000008800000000000
 -- 024:0000000000000000000000000000000000000000000000ff000fff4400f44444
 -- 025:0000000000000000000000ff000fff440ff44444f44444444444444444444444
