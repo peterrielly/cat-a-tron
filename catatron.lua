@@ -893,7 +893,8 @@ function createTank()
 			hit=multiShotDead,
 			life=5,
 			isHittable=true,
-			draw=drawSpr
+			draw=drawSpr,
+			fc=math.random(300)
 	   }
 	   table.insert(monList,b)
 end
@@ -905,17 +906,28 @@ function updateTank(obj)
 	else
 		obj.right = 0
 	end
-	
-	local a=0
-	if math.random(0,1) ==0 then
-		-- calculate angle to cat
-		a = calc_angle(obj.x,obj.y,cat.x,cat.y)
-	else
+
+	local a=calc_angle(obj.x,obj.y,cat.x,cat.y)
+	-- decrement fire counter
+	obj.fc=obj.fc-1
+
+	if obj.fc < 0 then obj.fc=300 end
+
+	if obj.fc == 10 or obj.fc ==40 or obj.fc ==60 then
+		if sound then sfx(3) end
+		local vx=math.cos(a)*shotspeed
+		local vy=-math.sin(a)*shotspeed
+		createP(obj.x+4,obj.y,10,0,0)
+		createShot(obj.x+4,obj.y,vx,vy)
+	end
+
+	if math.random(20) ==0 then
 		-- target random point
 		a = calc_angle(obj.x,obj.y,math.random(0,230), math.random(0,128))
+		obj.vx=math.cos(a)*.3
+		obj.vy=-math.sin(a)*.3
 	end
-	obj.vx=math.cos(a)*.3
-	obj.vy=-math.sin(a)*.3
+	
 
 	if not onScreen(obj.x+obj.vx,obj.y+obj.vy) then
 		a = calc_angle(obj.x,obj.y,150,75)
