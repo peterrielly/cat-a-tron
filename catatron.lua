@@ -31,7 +31,7 @@ sound = true
 score = 0
 start_lives=3
 lives = start_lives
-start_level = 7
+start_level = 1
 level = start_level
 textcol = 3
 show_hit_box = false
@@ -732,8 +732,8 @@ end
 
 function createBox()
 	b = {
-			x=20,
-			y=20,
+			x=math.random(200) +10,
+			y=math.random(110)+9,
 			right=0,
 			vx=.5,
 			vy=.5,
@@ -778,28 +778,92 @@ function createBoss1()
 			score=10,
 			update=updateBoss1,
 			hit=multiShotStatic,
-			life=50, 
+			life=200, 
 			isHittable = true,
-			draw=drawSpr
+			draw=drawBoss1,
+			angry=false,
+			fa=0
 	   }
 	   table.insert(monList,b)
 end
 
+function drawBoss1(obj)
+	local flash = obj.flash
+	drawSpr(obj)
+	if obj.angry == true and flash == 0 then
+		spr(294,obj.x+28,obj.y+22,0)
+	end
+	print(obj.life,obj.x,obj.y,7)
+end
+
 function updateBoss1(obj)
-	obj.vx = obj.vx 
-	--obj.x = obj.x +math.sin(math.rad(t))*1.2
-	--obj.y = obj.y +math.cos(math.rad(t/2))/2.6
+
+	local a,vx,vy
+
+	obj.angry=false
+	if cat.x < obj.x  and cat.right == 1 then
+		obj.angry = true
+	end
+	if cat.x > obj.x  and cat.right == 0 then
+		obj.angry = true
+	end
 
 	obj.x = 100+ math.sin(math.rad(t))*40
 	obj.y = 60 + math.cos(math.rad(t/2))*30
 
-	if t%60==0 and math.random(0,3)==0 then
-		local a = calc_angle(obj.x, obj.y,cat.x, cat.y)
-		local vx=math.cos(a)*shotspeed
-		local vy=-math.sin(a)*shotspeed
-		if sound then sfx(3) end
-		createP(obj.x+32,obj.y+16,10,0,0)
-		createShot(obj.x+32,obj.y+16,vx,vy)
+	if obj.life > 150 then
+		if t%10==0 and math.random(0,3)==0 then
+			a = calc_angle(obj.x, obj.y,cat.x, cat.y)
+			vx=math.cos(a)*shotspeed
+			vy=-math.sin(a)*shotspeed
+			if sound then sfx(3) end
+			createP(obj.x+32,obj.y+16,10,0,0)
+			createShot(obj.x+32,obj.y+16,vx,vy)
+		end
+	end
+
+	if obj.life < 140 and obj.life > 100 then
+		if obj.fa <= 2*math.pi then
+			vx=math.cos(obj.fa)*shotspeed
+			vy=math.sin(obj.fa)*shotspeed
+			if sound then sfx(3) end
+			createP(obj.x+32,obj.y+16,10,0,0)
+			createShot(obj.x+32,obj.y+16,vx,vy)
+		end
+		obj.fa = obj.fa + 2*math.pi/30
+
+		if obj.fa > 16*math.pi then obj.fa = 0 end
+	end
+
+	if obj.life == 100 then obj.fa = 0 end
+
+	if obj.life < 80 and obj.life > 20 then
+		if obj.fa < 8*math.pi then
+			vx=math.cos(obj.fa)*shotspeed
+			vy=math.sin(obj.fa)*shotspeed
+			if sound then sfx(3) end
+			createP(obj.x+32,obj.y+16,10,0,0)
+			createShot(obj.x+32,obj.y+16,vx,vy)
+		end
+		obj.fa = obj.fa + 2*math.pi/20
+
+		if obj.fa > 20*math.pi then obj.fa = 0 end
+	end
+	
+	if obj.life == 2 then obj.fa = 0 end
+
+	if obj.life < 20 and obj.life > 0 then
+		while obj.fa < 8*math.pi do
+			local vx=math.cos(obj.fa)*shotspeed
+			local vy=math.sin(obj.fa)*shotspeed
+			if sound then sfx(3) end
+			createP(obj.x+32,obj.y+16,10,0,0)
+			createShot(obj.x+32,obj.y+16,vx,vy)
+			obj.fa = obj.fa + 2*math.pi/20
+		end
+		obj.fa = obj.fa + 2*math.pi/20
+
+		if obj.fa > 20*math.pi then obj.fa = 0 end
 	end
 end
 
