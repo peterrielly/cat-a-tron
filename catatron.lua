@@ -576,6 +576,7 @@ function hit_tic()
 		cat.x=100
 		cat.y=50
 		resetMonsters()
+		t=0
 		if lives == 0 then
 			state="game over"
 		else
@@ -671,6 +672,7 @@ function init_level(level)
 	end
 
 	resetMonsters()
+	t=0
 	cat.icount = itime
 end
 
