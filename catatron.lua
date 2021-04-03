@@ -435,32 +435,34 @@ function createP(_x,_y,_l,_a,_c)
 				life=_l,
 				c=_c,
 				vx=math.cos(_a),
-				vy=math.sin(_a)
+				vy=math.sin(_a),
+				update = function(p)
+					if p.c == 0 then
+						p.c=12
+					else
+						p.life = p.life-1
+					end
+					p.x = p.x+p.vx
+					p.y = p.y+p.vy
+				end,
+				draw=function(p)
+					circ(p.x,p.y,p.life,p.c)
+				end
 				}
 	table.insert(pl,p)
 end
 
 function drawParticles()
-	--if t%2 ==0 then return end
-	for i=1,#pl do
-		local p=pl[i]
-		--circ(p.x,p.y,(20-p.life),p.c)
-		circ(p.x,p.y,p.life,p.c)
+	for i,p in pairs(pl) do
+		p:draw()
 	end
 end
 
 function updateParticles()
 	for i,p in pairs(pl) do
-		if pl[i].c == 0 then
-			pl[i].c=12
-		else
-			pl[i].life = pl[i].life-1
-		end
-		if pl[i].life<=0 then
+		p:update()
+		if p.life<=0 then
 			table.remove(pl,i)
-		else
-			pl[i].x = pl[i].x+pl[i].vx
-			pl[i].y = pl[i].y+pl[i].vy
 		end 
 	end
 end
