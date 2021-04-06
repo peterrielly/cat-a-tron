@@ -71,7 +71,7 @@ cat={
 	w=1,
 	h=1,
 	icount = itime,
-	bounce=true
+	bounce=false
 }
 
 bulletList={}
@@ -79,6 +79,10 @@ bulletList={}
 monList={}
 
 exList={} -- explosion list
+
+pulist={} -- power up list
+
+
 function printc(s,x,y,c)
 	local w=print(s,0,-8)
 	print(s,x-(w/2),y,c or 15)
@@ -271,6 +275,13 @@ function catInput()
 			cat.fx=1
 		end
 		cat.right=1
+	end
+
+	-- test
+	if btnp(5) then
+		--local p = createPowerUp("heart",cat.x, cat.y)
+		local p = createPowerUp("bounce",cat.x+15, cat.y)
+		table.insert(pulist, p)
 	end
 end
 
@@ -563,6 +574,73 @@ function removeMonsters()
 	end
 end
 
+function createPowerUp(type,x,y)
+	local p={
+		x=x,
+		y=y,
+		type=type,
+		vx=0,
+		vy=-0.2,
+		update = function(p)
+			p.x = p.x+p.vx
+			p.y = p.y+p.vy
+		end,
+		draw=function(p)
+			if type == "heart" then
+				spr(370,p.x,p.y,0)
+			elseif type == "bounce" then
+				spr(368,p.x,p.y,0)
+			end
+			circb(p.x+3,p.y+3,9,10)
+		end
+		}
+
+		return p
+end
+
+function drawPowerUps()
+	for i,p in pairs(pulist) do
+		p:draw()
+	end
+end
+
+function updatePowerUps()
+	for i,p in pairs(pulist) do
+		p:update()
+	end
+end
+
+function resetPowerUps()
+	for i,b in ipairs(pulist) do
+		table.remove(pulist,i)
+	end
+end
+
+function checkCatPowerUps()
+
+	for i,p in ipairs(pulist) do
+		
+		local _b1 = {p.x,p.y,8,8 }
+		rect(p.x,p.y,8,8,7)
+		local _b2 = {cat.x+cat.hitBox[1], cat.y+cat.hitBox[2],cat.hitBox[3],cat.hitBox[4] }
+		if checkCol(_b1,_b2) then
+			table.remove(pulist,i)
+			if p.type == "heart" then
+				lives = lives +1
+			elseif p.type == "bounce" then
+				cat.bounce = true
+			end
+
+			for k=0,10 do
+				createP(cat.x,cat.y,15,math.random(360),10)
+			end
+			
+			break
+		end
+		
+	end
+end
+
 function play_tic()
 	radcount=0
 	cls(groundcolour)
@@ -576,13 +654,16 @@ function play_tic()
 	updateBullets()
 	updateMonsters()
 	updateParticles()
+	updatePowerUps()
 	checkMonCat()
 	checkMonBull()
+	checkCatPowerUps()
 	
 	updateShake()
 	drawBullets()
 	drawMonsters()
 	drawParticles()
+	drawPowerUps()
 
 	if cat.icount > 0 then
 		if cat.icount <(itime/4) then
@@ -730,6 +811,8 @@ function level_complete_tic()
 
 	resetBullets()
 	removeMonsters()
+	resetPowerUps()
+
 	
 	if level == #levels then
 		state="win"
@@ -1281,7 +1364,7 @@ end
 -- 099:6644450066645500550555005000500000000000000000000000000000000000
 -- 112:0000000000000000000006663000000603000206002020000002000000000000
 -- 113:0600000600000000020002000000000003030000000000000303020600000000
--- 114:000000000aa00aa0a99aa99aa999999a0a9999a000a99a00000aa00000000000
+-- 114:000000000aa0aa00a99a99a0a99999a00a999a0000a9a000000a000000000000
 -- </SPRITES>
 
 -- <WAVES>
