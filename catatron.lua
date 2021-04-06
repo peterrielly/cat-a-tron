@@ -50,6 +50,7 @@ itime=60
 radcount=0
 groundcolour=0
 max_bullet_age=120
+power_up_chance=40
 
 
 cat={
@@ -242,7 +243,7 @@ function catInput()
 	cat.vx=0
 	cat.vy=0
 
-	if btn(4) then
+	if btn(4) or btn(5) then
 		lock=true
 	else
 		if btn(0) or btn(1) or btn(2) or btn(3) then
@@ -277,12 +278,6 @@ function catInput()
 		cat.right=1
 	end
 
-	-- test
-	if btnp(5) then
-		--local p = createPowerUp("heart",cat.x, cat.y)
-		local p = createPowerUp("bounce",cat.x+15, cat.y)
-		table.insert(pulist, p)
-	end
 end
 
 function createChomper()
@@ -428,7 +423,21 @@ function checkMonBull()
 						sfx(2)	
 					end
 				end
+
+				if math.random(1,power_up_chance)==1 then
+					if cat.bounce then
+						table.insert(pulist,createPowerUp("heart",b.x,b.y))
+					else
+						if math.random(0,1) == 1 then
+							table.insert(pulist,createPowerUp("heart",b.x,b.y))
+						else
+							table.insert(pulist,createPowerUp("bounce",b.x,b.y))
+						end
+					end
+				end
+
 				table.remove(bulletList,j)
+				
 				break
 			end
 		end
@@ -584,6 +593,9 @@ function createPowerUp(type,x,y)
 		update = function(p)
 			p.x = p.x+p.vx
 			p.y = p.y+p.vy
+			if not onScreen(p.x,p.y) then
+				p.y = 127
+			end
 		end,
 		draw=function(p)
 			if type == "heart" then
@@ -591,7 +603,7 @@ function createPowerUp(type,x,y)
 			elseif type == "bounce" then
 				spr(368,p.x,p.y,0)
 			end
-			circb(p.x+3,p.y+3,9,10)
+			circb(p.x+3,p.y+3,9+math.sin(t/4)*2,10)
 		end
 		}
 
@@ -621,7 +633,6 @@ function checkCatPowerUps()
 	for i,p in ipairs(pulist) do
 		
 		local _b1 = {p.x,p.y,8,8 }
-		rect(p.x,p.y,8,8,7)
 		local _b2 = {cat.x+cat.hitBox[1], cat.y+cat.hitBox[2],cat.hitBox[3],cat.hitBox[4] }
 		if checkCol(_b1,_b2) then
 			table.remove(pulist,i)
