@@ -49,6 +49,9 @@ state="title"
 itime=60
 radcount=0
 groundcolour=0
+max_bullet_age=120
+
+
 cat={
 	x=100,
 	y=50,
@@ -67,7 +70,8 @@ cat={
 	goodBox={-1,-1,9,9},
 	w=1,
 	h=1,
-	icount = itime
+	icount = itime,
+	bounce=true
 }
 
 bulletList={}
@@ -114,7 +118,8 @@ function fire()
 			at=0,
 			hitBox={0,0,8,8},
 			w=1,
-			h=1
+			h=1,
+			age=0
 	}
 	table.insert(bulletList,b)
 	sfx(1)
@@ -201,7 +206,20 @@ function updateBullets()
 	for i,b in ipairs(bulletList) do
 		b.x=b.x+b.vx
 		b.y=b.y+b.vy
+		b.age = b.age+1
 		if not onScreen(b.x,b.y) then
+			if cat.bounce then
+				if b.x < 2 or b.x >231 then
+					b.vx = -b.vx
+				end
+				if b.y < 2 or b.y >136 then
+					b.vy = -b.vy
+				end
+			else
+				table.remove(bulletList,i)
+			end
+		end
+		if b.age > max_bullet_age then
 			table.remove(bulletList,i)
 		end
 	end
@@ -602,6 +620,7 @@ function hit_tic()
 	else
 		cat.x=100
 		cat.y=50
+		cat.bounce=false
 		resetMonsters()
 		t=0
 		if lives == 0 then
@@ -616,6 +635,7 @@ function hit_tic()
 
 	drawParticles()
 	updateParticles()
+	resetBullets()
 
 
 --	drawSpr(cat)
@@ -1259,6 +1279,9 @@ end
 -- 097:6644450066645500500050000000000000000000000000000000000000000000
 -- 098:0005556600055566000050050000000000000000000000000000000000000000
 -- 099:6644450066645500550555005000500000000000000000000000000000000000
+-- 112:0000000000000000000006663000000603000206002020000002000000000000
+-- 113:0600000600000000020002000000000003030000000000000303020600000000
+-- 114:000000000aa00aa0a99aa99aa999999a0a9999a000a99a00000aa00000000000
 -- </SPRITES>
 
 -- <WAVES>
