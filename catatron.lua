@@ -131,7 +131,7 @@ function fire()
 end
 
 function createMan()
-	b = {
+	local b = {
 			x=math.random(240),
 			y=math.random(110)+9,
 			right=0,
@@ -152,7 +152,7 @@ function createMan()
 			isHittable=true,
 			draw=drawSpr
 	   }
-	   table.insert(monList,b)
+	   return b
 end
 
 function updateMan(obj)
@@ -281,7 +281,7 @@ function catInput()
 end
 
 function createChomper()
-	b = {
+	local b = {
 			x=math.random(200)+15,
 			y=math.random(110)+9,
 			right=0,
@@ -301,7 +301,7 @@ function createChomper()
 			isHittable=true,
 			draw=drawSpr
 	   }
-	   table.insert(monList,b)
+	   return b
 end
 
 function updateMonsters()
@@ -337,7 +337,7 @@ function updateChomper(obj)
 end
 
 function createGrunt()
-	b = {
+	local b = {
 			x=math.random(200+15),
 			y=math.random(110)+9,
 			right=0,
@@ -357,7 +357,7 @@ function createGrunt()
 			isHittable=true,
 			draw=drawSpr
 	   }
-	   table.insert(monList,b)
+	   return b
 end
 
 function updateGrunt(obj)
@@ -782,37 +782,45 @@ function win_tic()
 end
 
 function init_level(level)
-
+	local mon={}
 	for i=1,levels[level][2] do
-		createChomper()
+		mon = createChomper()
+		table.insert(monList,mon)
 	end
 
 	for i=1,levels[level][3] do
-		createMan()
+		mon = createMan()
+		table.insert(monList,mon)
 	end
 
 	for i=1,levels[level][4] do
-		createOrgan()
+		mon = createOrgan()
+		table.insert(monList,mon)
 	end
 
 	for i=1,levels[level][5] do
-		createBox()
+		mon = createBox()
+		table.insert(monList,mon)
 	end
 
 	for i=1,levels[level][6] do
-		createSentinel()
+		mon = createSentinel()
+		table.insert(monList,mon)
 	end	
 
 	for i=1,levels[level][7] do
-		createBoss1()
+		mon = createBoss1()
+		table.insert(monList,mon)
 	end
 
 	for i=1,levels[level][8] do
-		createGrunt()
+		mon = createGrunt()
+		table.insert(monList,mon)
 	end
 
 	for i=1,levels[level][9] do
-		createTank()
+		mon = createTank()
+		table.insert(monList,mon)
 	end
 
 	resetMonsters()
@@ -879,7 +887,7 @@ function oneShotDead(m)
 end
 
 function createBox()
-	b = {
+	local b = {
 			x=math.random(200) +10,
 			y=math.random(110)+9,
 			right=0,
@@ -901,7 +909,7 @@ function createBox()
 			isHittable=true,
 			draw=drawSpr
 	   }
-	   table.insert(monList,b)
+	   return b
 end
 
 function updateBox()
@@ -909,7 +917,7 @@ function updateBox()
 end
 
 function createBoss1()
-	b = {
+	local b = {
 			x=20,
 			y=60,
 			right=0,
@@ -932,7 +940,7 @@ function createBoss1()
 			angry=false,
 			fa=0
 	   }
-	   table.insert(monList,b)
+	   return b
 end
 
 function drawBoss1(obj)
@@ -1016,7 +1024,7 @@ function updateBoss1(obj)
 end
 
 function createSentinel()
-	b = {
+	local b = {
 			x=math.random(200) +10,
 			y=math.random(110)+9,
 			right=0,
@@ -1037,7 +1045,7 @@ function createSentinel()
 			isHittable = true,
 			draw=drawSpr
 	   }
-	   table.insert(monList,b)
+	   return b
 end
 
 function updateSentinel(obj)
@@ -1086,7 +1094,7 @@ function updateShot(obj)
 end
 
 function createTank()
-	b = {
+	local b = {
 			x=math.random(240),
 			y=math.random(110)+9,
 			right=0,
@@ -1108,7 +1116,7 @@ function createTank()
 			draw=drawSpr,
 			fc=math.random(300)
 	   }
-	   table.insert(monList,b)
+	   return b
 end
 
 function updateTank(obj)
@@ -1152,7 +1160,7 @@ function updateTank(obj)
 end
 
 function createOrgan()
-	b = {
+	local b = {
 			x=math.random(240),
 			y=math.random(110)+9,
 			right=0,
@@ -1173,7 +1181,7 @@ function createOrgan()
 			isHittable=true,
 			draw=drawSpr
 	   }
-	   table.insert(monList,b)
+	   return b 
 end
 
 function updateOrgan(obj)
