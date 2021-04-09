@@ -51,6 +51,8 @@ radcount=0
 groundcolour=0
 max_bullet_age=120
 power_up_chance=40
+end_timer = -1
+level_done = false
 
 
 cat={
@@ -450,9 +452,14 @@ function checkMonBull()
 		end
 	end
 	-- check if any mosters are still alive
-	if num_alive == 0 then
-		coolT=80
-		state = "level transition"
+	if num_alive == 0 and not level_done then
+		-- longer level end delay if powerups are still available
+		if #pulist == 0 then
+			end_timer = t+40
+		else
+			end_timer = t+40+(60*#pulist)
+		end
+		level_done = true
 	end
 end
 
@@ -532,7 +539,7 @@ end
 
 function checkMonCat()
 	-- check we are not invincable
-	if cat.icount >0 then
+	if cat.icount >0  or level_done then
 		return
 	end
 
@@ -644,6 +651,7 @@ function checkCatPowerUps()
 				cat.bounce = true
 			elseif p.type == "plus" then
 				score = score+100
+				createScoreP(p.x,p.y,40,0,6,100)
 			end
 
 			for k=0,10 do
@@ -703,6 +711,14 @@ function play_tic()
 			rect(u-radcount,v-radcount,radcount*2,radcount*2,pix(u,v))
 		end
 	end
+
+	if end_timer == t then
+		coolT=80
+		state = "level transition"
+		level_done = false
+		end_timer = -1
+	end
+
 	t=t+1
 end
 
@@ -764,6 +780,7 @@ function go_tic()
 
 	if btnp(4) or btnp(5) then
 		state="title"
+		level_done = false
 	end
 end
 
@@ -949,7 +966,6 @@ function drawBoss1(obj)
 	if obj.angry == true and flash == 0 then
 		spr(294,obj.x+28,obj.y+22,0)
 	end
-	print(obj.life,obj.x,obj.y,7)
 end
 
 function updateBoss1(obj)
