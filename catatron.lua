@@ -425,15 +425,15 @@ function checkMonBull()
 				end
 
 				if math.random(1,power_up_chance)==1 then
-					if cat.bounce then
+					local pt = math.random(1,6)
+					if pt == 1 then
 						table.insert(pulist,createPowerUp("heart",b.x,b.y))
+					elseif pt == 2 or pt == 3 then
+						table.insert(pulist,createPowerUp("bounce",b.x,b.y))
 					else
-						if math.random(0,1) == 1 then
-							table.insert(pulist,createPowerUp("heart",b.x,b.y))
-						else
-							table.insert(pulist,createPowerUp("bounce",b.x,b.y))
-						end
+						table.insert(pulist,createPowerUp("plus",b.x,b.y))
 					end
+
 				end
 
 				table.remove(bulletList,j)
@@ -602,6 +602,8 @@ function createPowerUp(type,x,y)
 				spr(370,p.x,p.y,0)
 			elseif type == "bounce" then
 				spr(368,p.x,p.y,0)
+			elseif type == "plus" then
+				spr(371,p.x,p.y,0)
 			end
 			circb(p.x+3,p.y+3,9+math.sin(t/4)*2,10)
 		end
@@ -632,7 +634,7 @@ function checkCatPowerUps()
 
 	for i,p in ipairs(pulist) do
 		
-		local _b1 = {p.x,p.y,8,8 }
+		local _b1 = {p.x-4,p.y-4,16,16 }
 		local _b2 = {cat.x+cat.hitBox[1], cat.y+cat.hitBox[2],cat.hitBox[3],cat.hitBox[4] }
 		if checkCol(_b1,_b2) then
 			table.remove(pulist,i)
@@ -640,6 +642,8 @@ function checkCatPowerUps()
 				lives = lives +1
 			elseif p.type == "bounce" then
 				cat.bounce = true
+			elseif p.type == "plus" then
+				score = score+100
 			end
 
 			for k=0,10 do
@@ -1376,6 +1380,7 @@ end
 -- 112:0000000000000000000006663000000603000206002020000002000000000000
 -- 113:0600000600000000020002000000000003030000000000000303020600000000
 -- 114:000000000aa0aa00a99a99a0a99999a00a999a0000a9a000000a000000000000
+-- 115:0000000000000000030603000002000006232600000200000306030000000000
 -- </SPRITES>
 
 -- <WAVES>
