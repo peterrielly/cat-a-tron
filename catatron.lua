@@ -15,16 +15,17 @@
 7 = boss1
 8 = grunt
 9 = tank
+10 = APC
 ]]
 local levels={
-    {"Start slow", 3,0,0,2,0,0,6,0},
-    {"They're multiplying", 4,0,0,4,0,0,10,0},
-	{"Don't get too close!",4,4,0,2,0,0,5,0},
-	{"Mmmm meaty!",0,3,4,2,0,0,6,0},
-	{"It's like a butchers in here",3,0,6,1,0,0,6,0},
-	{"I feel like someone is watching me",3,0,0,3,4,0,4,0},
-	{"Tank you very much",0,0,0,0,0,0,9,5},
-	{"Miniboss",0,0,0,0,0,1,0,0}
+    {"Start slow", 3,0,0,2,0,0,6,0,1},
+    {"They're multiplying", 4,0,0,4,0,0,10,0,0},
+	{"Don't get too close!",4,4,0,2,0,0,5,0,0},
+	{"Mmmm meaty!",0,3,4,2,0,0,6,0,0},
+	{"It's like a butchers in here",3,0,6,1,0,0,6,0,0},
+	{"I feel like someone is watching me",3,0,0,3,4,0,4,0,0},
+	{"Tank you very much",0,0,0,0,0,0,9,5,0},
+	{"Miniboss",0,0,0,0,0,1,0,0,0}
 }
 
 sound = true
@@ -840,6 +841,11 @@ function init_level(level)
 		table.insert(monList,mon)
 	end
 
+	for i=1,levels[level][10] do
+		mon = createAPC()
+		table.insert(monList,mon)
+	end
+
 	resetMonsters()
 	t=0
 	cat.icount = itime
@@ -1173,6 +1179,101 @@ function updateTank(obj)
 
 	obj.x=obj.x+obj.vx
 	obj.y=obj.y+obj.vy	
+end
+
+function createAPC()
+	local b = {
+			x=math.random(240),
+			y=math.random(110)+9,
+			right=0,
+			vx=.5,
+			vy=.5,
+			anim={375,377},
+			ai=math.random(1,2),
+			as=math.random(28,34),
+			at=0,
+			type="apc",
+			hitBox={0,0,15,11},
+			w=2,
+			h=2,
+			score=50,
+			update=updateAPC,
+			hit=multiShotDead,
+			life=5,
+			isHittable=true,
+			draw=drawSpr,
+			fc=math.random(100),
+			state="walk",
+			t=0
+	   }
+	   return b
+end
+
+function updateAPC(obj)
+	obj.t = obj.t+1
+	-- which way is the cat
+	if cat.x < obj.x then
+		obj.right = 1
+	else
+		obj.right = 0
+	end
+
+	if obj.state=="fire" then
+		local a=calc_angle(obj.x,obj.y,cat.x,cat.y)
+		-- decrement fire counter
+		obj.fc=obj.fc-1
+
+		if obj.fc < 0 then 
+			obj.fc=90
+			obj.state="walk"
+			obj.t=0
+		 end
+
+		if obj.fc == 10 or obj.fc ==40 then
+			if sound then sfx(3) end
+			local vx=math.cos(a)*shotspeed
+			local vy=-math.sin(a)*shotspeed
+			createP(obj.x+4,obj.y,10,0,0)
+			createShot(obj.x+4,obj.y,vx,vy)
+		end
+	end
+
+	if obj.state=="walk" then
+		if math.random(20) ==0 then
+			-- target random point
+			a = calc_angle(obj.x,obj.y,math.random(0,230), math.random(0,128))
+			obj.vx=math.cos(a)*.3
+			obj.vy=-math.sin(a)*.3
+		end
+		
+
+		if not onScreen(obj.x+obj.vx,obj.y+obj.vy) then
+			a = calc_angle(obj.x,obj.y,150,75)
+			obj.vx=math.cos(a)*.3
+			obj.vy=-math.sin(a)*.3
+		end
+
+		obj.x=obj.x+obj.vx
+		obj.y=obj.y+obj.vy	
+
+		if obj.t > 300 then
+			obj.t=0
+			if math.random(0,5)==0 then
+				obj.state="fire"
+			else
+				obj.state="drop"
+			end
+		end
+	end
+
+	if obj.state=="drop" then
+		g = createGrunt()
+		g.x = obj.x
+		g.y = obj.y
+		table.insert(monList,g)
+		createP(obj.x,obj.y,10,0,0)
+		obj.state="walk"
+	end
 end
 
 function createOrgan()
