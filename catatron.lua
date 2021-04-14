@@ -16,16 +16,17 @@
 8 = grunt
 9 = tank
 10 = APC
+11 = miner
 ]]
 local levels={
-    {"Start slow", 3,0,0,2,0,0,6,0,1},
-    {"They're multiplying", 4,0,0,4,0,0,10,0,0},
-	{"Don't get too close!",4,4,0,2,0,0,5,0,0},
-	{"Mmmm meaty!",0,3,4,2,0,0,6,0,0},
-	{"It's like a butchers in here",3,0,6,1,0,0,6,0,0},
-	{"I feel like someone is watching me",3,0,0,3,4,0,4,0,0},
-	{"Tank you very much",0,0,0,0,0,0,9,5,0},
-	{"Miniboss",0,0,0,0,0,1,0,0,0}
+    {"Start slow", 3,0,0,2,0,0,6,0,0,0},
+	{"They're multiplying", 4,0,0,4,0,0,10,0,0,0},
+	{"Don't get too close!",4,4,0,2,0,0,5,0,0,0},
+	{"Mmmm meaty!",0,3,4,2,0,0,6,0,0,3},
+	{"It's like a butchers in here",3,0,6,1,0,0,6,0,0,3},
+	{"I feel like someone is watching me",3,0,0,3,4,0,4,0,0,4},
+	{"Tank you very much",0,0,0,0,0,0,9,5,3,0},
+	{"Miniboss",0,0,0,0,0,1,0,0,0,0}
 }
 
 sound = true
@@ -384,6 +385,62 @@ function updateGrunt(obj)
 	obj.x=obj.x+obj.vx
 	obj.y=obj.y+obj.vy	
 end
+
+function createMiner()
+	local b = {
+			x=math.random(200+15),
+			y=math.random(110)+9,
+			right=0,
+			vx=.5,
+			vy=.5,
+			anim={373,374},
+			ai=math.random(1,2),
+			as=math.random(18,20),
+			at=0,
+			type="miner",
+			hitBox={0,0,7,7},
+			w=1,
+			h=1,
+			score=15,
+			update=updateMiner,
+			hit=deadBomb,
+			isHittable=true,
+			draw=drawSpr
+	   }
+	   return b
+end
+
+function updateMiner(obj)
+	--rectb(0,9,240,127,11)
+	if obj.x > 232 then
+		obj.x = 232
+		obj.vx = -obj.vx
+	end
+	if obj.x < 0 then
+		obj.x = 0
+		obj.vx = -obj.vx
+	end
+	if obj.y < 9 then
+		obj.y = 9
+		obj.vy = -obj.vy
+	end
+	if obj.y > 119 then
+		obj.y = 119
+		obj.vy = -obj.vy
+	end
+
+
+	obj.x=obj.x+obj.vx
+	obj.y=obj.y+obj.vy	
+end
+
+function deadBomb(obj)
+	createShot(obj.x+4,obj.y+4,1,1)
+	createShot(obj.x+4,obj.y+4,-1,1)
+	createShot(obj.x+4,obj.y+4,1,-1)
+	createShot(obj.x+4,obj.y+4,-1,-1)
+	return true
+end 
 
 function drawMonsters()
 	for i,m in ipairs(monList) do
@@ -843,6 +900,11 @@ function init_level(level)
 
 	for i=1,levels[level][10] do
 		mon = createAPC()
+		table.insert(monList,mon)
+	end
+
+	for i=1,levels[level][11] do
+		mon = createMiner()
 		table.insert(monList,mon)
 	end
 
@@ -1506,6 +1568,7 @@ end
 -- 113:0600000600000000020002000000000003030000000000000303020600000000
 -- 114:000000000aa0aa00a99a99a0a99999a00a999a0000a9a000000a000000000000
 -- 115:0000000000000000030603000002000006232600000200000306030000000000
+-- 117:0000000001211210021001200100001001000010021001200121121000000000
 -- 118:1210012121000012100110010017710000177100100110012100001212100121
 -- 119:0000002300000232000022220000022200000022000011110001111100666111
 -- 120:2200000022a000002a3a000022a0000022000000111500001155540011555400
