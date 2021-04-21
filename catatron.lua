@@ -841,6 +841,7 @@ function go_tic()
 	printc("Score "..score,120,80,textcol)
 	lives = start_lives
 	level=start_level
+	resetPowerUps()
 	for i,m in ipairs(monList) do
 		table.remove(monList,i)
 	end
