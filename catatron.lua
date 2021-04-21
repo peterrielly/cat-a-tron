@@ -56,6 +56,7 @@ max_bullet_age=120
 power_up_chance=40
 end_timer = -1
 level_done = false
+bouncePower = 600
 
 
 cat={
@@ -77,7 +78,7 @@ cat={
 	w=1,
 	h=1,
 	icount = itime,
-	bounce=false
+	bounce=0
 }
 
 bulletList={}
@@ -218,7 +219,7 @@ function updateBullets()
 		b.y=b.y+b.vy
 		b.age = b.age+1
 		if not onScreen(b.x,b.y) then
-			if cat.bounce then
+			if cat.bounce  > 0 then
 				if b.x < 2 or b.x >231 then
 					b.vx = -b.vx
 				end
@@ -709,7 +710,7 @@ function checkCatPowerUps()
 			if p.type == "heart" then
 				lives = lives +1
 			elseif p.type == "bounce" then
-				cat.bounce = true
+				cat.bounce = cat.bounce+bouncePower
 			elseif p.type == "plus" then
 				score = score+100
 				createScoreP(p.x,p.y,40,0,6,100)
@@ -781,6 +782,7 @@ function play_tic()
 	end
 
 	t=t+1
+	if cat.bounce >0 then cat.bounce = cat.bounce-1 end
 end
 
 function hit_tic()
@@ -789,7 +791,7 @@ function hit_tic()
 	
 	cat.x=100
 	cat.y=50
-	cat.bounce=false
+	cat.bounce=0
 
 	-- check cat isn't recovering
 	if coolT > 0 then
