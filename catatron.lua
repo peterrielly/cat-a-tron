@@ -53,7 +53,7 @@ itime=60
 radcount=0
 groundcolour=0
 max_bullet_age=120
-power_up_chance=40
+power_up_chance=30
 end_timer = -1
 level_done = false
 bouncePower = 600
@@ -750,6 +750,13 @@ function play_tic()
 	drawParticles()
 	drawPowerUps()
 
+	if coolT > 0 then
+		local sf = (coolTMax-coolT)/coolTMax
+		circ(cat.x+4,cat.y+4,50*sf,10)
+		resetMonsters(50*sf)
+		coolT=coolT-1
+	end
+
 	if cat.icount > 0 then
 		if cat.icount <(itime/4) then
 			if t%4==0 then
@@ -832,6 +839,7 @@ function title_tic()
 	if btnp(4) or btnp(5) then
 		init_level(level)
 		state="play"
+		coolT=coolTMax
 	end
 end
 
@@ -869,60 +877,77 @@ end
 function init_level(level)
 	cat.x=100
 	cat.y=50
-	local mon={}
-	for i=1,levels[level][2] do
-		mon = createChomper()
-		table.insert(monList,mon)
-	end
-
-	for i=1,levels[level][3] do
-		mon = createMan()
-		table.insert(monList,mon)
-	end
-
-	for i=1,levels[level][4] do
-		mon = createOrgan()
-		table.insert(monList,mon)
-	end
-
-	for i=1,levels[level][5] do
-		mon = createBox()
-		table.insert(monList,mon)
-	end
-
-	for i=1,levels[level][6] do
-		mon = createSentinel()
-		table.insert(monList,mon)
-	end	
-
-	for i=1,levels[level][7] do
-		mon = createBoss1()
-		table.insert(monList,mon)
-	end
-
-	for i=1,levels[level][8] do
-		mon = createGrunt()
-		table.insert(monList,mon)
-	end
-
-	for i=1,levels[level][9] do
-		mon = createTank()
-		table.insert(monList,mon)
-	end
-
-	for i=1,levels[level][10] do
-		mon = createAPC()
-		table.insert(monList,mon)
-	end
-
-	for i=1,levels[level][11] do
-		mon = createMiner()
-		table.insert(monList,mon)
-	end
-
 	resetMonsters(50)
 	t=0
 	cat.icount = itime
+
+	local mon={}
+
+	if level%15==0 then
+		mon = createBoss1()
+		mon.life=50*(level%15)
+		table.insert(monList,mon)
+	else
+
+		for i=1,math.random(0,3) do
+			mon = createBox()
+			table.insert(monList,mon)
+		end
+
+		for i=1,math.random(1,3+level//5) do
+			mon = createGrunt()
+			table.insert(monList,mon)
+		end
+
+		for i=1,1+level//10 do
+			for j=1,math.random(0,1) do
+				mon = createChomper()
+				table.insert(monList,mon)
+			end
+		end
+
+		for i=1,level//5 do
+			for j=1,math.random(0,1) do
+				mon = createMan()
+				table.insert(monList,mon)
+			end
+		end
+
+		for i=1,level//10 do
+			for j=1,math.random(0,1) do
+				mon = createOrgan()
+				table.insert(monList,mon)
+			end
+		end
+
+		for i=1,level//7 do
+			for j=1,math.random(0,1) do
+				mon = createSentinel()
+				table.insert(monList,mon)
+			end
+		end
+
+		for i=1,level//11 do
+			for j=1,math.random(0,1) do
+				mon = createTank()
+				table.insert(monList,mon)
+			end
+		end
+
+		for i=1,level//13 do
+			for j=1,math.random(0,1) do
+				mon = createAPC()
+				table.insert(monList,mon)
+			end
+		end
+
+		for i=1,level//4 do
+			for j=1,math.random(0,1) do
+				mon = createMiner()
+				table.insert(monList,mon)
+			end
+		end
+	end
 end
 
 function level_complete_tic()
@@ -933,15 +958,8 @@ function level_complete_tic()
 	removeMonsters()
 	resetPowerUps()
 
-	
-	if level == #levels then
-		state="win"
-		return
-	end
-
-
 	printc("Wave "..level+1,120,60,textcol)
-	printc(levels[level+1][1],120,70, textcol)
+	printc("Fire to start", 120,70,textcol)
 
 	if btnp(4) or btnp(5) then
 		cat.x=100
@@ -950,6 +968,7 @@ function level_complete_tic()
 		init_level(level)
 
 		state="play"
+		coolT=coolTMax
 	end
 
 end
