@@ -885,7 +885,6 @@ function init_level(level)
 
 	if level%15==0 then
 		mon = createBoss1()
-		mon.life=50*(level%15)
 		table.insert(monList,mon)
 	else
 
