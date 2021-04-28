@@ -1,8 +1,10 @@
 -- title:  Cat-a-tron
--- author: Pete Rielly
+-- author: Pete Rielly @rielly_peter
 -- desc:   Cat shooter
 -- script: lua
--- 2d1b2e218a913cc2fa9af6fd4a247c574b67937ac58ae25d8e2b45f04156f272ced3c0a8c5754af2a759f7db53f9f4ea
+
+
+-- Palette from
 -- https://lospec.com/palette-list/castpixel-16
 
 
@@ -24,7 +26,6 @@ coolT=0
 coolTMax=30
 pl={}
 transition=0
-debug="no msg"
 rainbow={9,13,14,7,3,6,4}
 state="title"
 itime=60
@@ -1135,7 +1136,7 @@ function createBoss1()
 			hitBox={0,0,63,30},
 			w=8,
 			h=4,
-			score=10,
+			score=500,
 			update=updateBoss1,
 			hit=multiShotStatic,
 			life=200, 
@@ -1241,7 +1242,7 @@ function createSentinel()
 			hitBox={2,0,11,15},
 			w=2,
 			h=2,
-			score=10,
+			score=20,
 			update=updateSentinel,
 			hit=multiShotStatic,
 			life=10, 
@@ -1311,7 +1312,7 @@ function createTank()
 			hitBox={0,0,15,11},
 			w=2,
 			h=2,
-			score=10,
+			score=30,
 			update=updateTank,
 			hit=multiShotDead,
 			life=5,
@@ -1472,7 +1473,7 @@ function createOrgan()
 			hitBox={0,0,15,13},
 			w=2,
 			h=2,
-			score=10,
+			score=20,
 			update=updateOrgan,
 			hit=multiShotDead,
 			life=5,
