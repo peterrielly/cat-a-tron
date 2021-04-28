@@ -958,7 +958,7 @@ function init_level(level)
 
 	local mon={}
 
-	if level%15==0 then
+	if level%50==0 then
 		mon = createBoss1()
 		table.insert(monList,mon)
 	else
